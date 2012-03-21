@@ -50,7 +50,8 @@ public class EnversRevisionRepositoryFactoryBean extends
 		this.revisionEntityClass = revisionEntityClass;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean#createRepositoryFactory(javax.persistence.EntityManager)
 	 */
 	@Override
@@ -95,7 +96,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 			return new EnversRevisionRepositoryImpl(entityInformation, revisionEntityInformation, entityManager);
 		}
 
-		/* 
+		/*
 		 * (non-Javadoc)
 		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getRepositoryBaseClass(org.springframework.data.repository.core.RepositoryMetadata)
 		 */
