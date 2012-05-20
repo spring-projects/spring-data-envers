@@ -92,7 +92,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 				EntityManager entityManager) {
 
 			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(metadata
-					.getDomainClass());
+					.getDomainType());
 			return new EnversRevisionRepositoryImpl(entityInformation, revisionEntityInformation, entityManager);
 		}
 
