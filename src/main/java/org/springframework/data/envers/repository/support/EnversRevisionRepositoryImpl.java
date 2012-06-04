@@ -31,6 +31,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
+import org.hibernate.envers.exception.NotAuditedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -113,7 +114,10 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
-
+		if (revisionNumbers.isEmpty()) {
+			throw new NotAuditedException(type.getName(),
+					"There is no revison information present. Perhaps you are using artificail test data.");
+		}
 		return getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
 	}
 
