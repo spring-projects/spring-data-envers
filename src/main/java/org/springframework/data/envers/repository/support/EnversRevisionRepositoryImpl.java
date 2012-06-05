@@ -116,7 +116,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 		if (revisionNumbers.isEmpty()) {
 			throw new NotAuditedException(type.getName(),
-					"There is no revison information present. Perhaps you are using artificail test data.");
+					"There is no revison information present. Perhaps you are using artificial test data.");
 		}
 		return getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
 	}
