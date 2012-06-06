@@ -47,9 +47,16 @@
 
 		<!-- Test -->
 		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-library</artifactId>
+			<version>1.2.1</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
 			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
+			<artifactId>junit-dep</artifactId>
+			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -109,5 +116,18 @@
 			<version>2.1</version>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12</version>
+				<configuration>
+					<junitArtifactName>junit:junit-dep</junitArtifactName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	
 </project>
