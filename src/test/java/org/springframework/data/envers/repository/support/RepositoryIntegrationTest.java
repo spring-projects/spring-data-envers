@@ -22,7 +22,8 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.hibernate.envers.exception.NotAuditedException;
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,10 +106,10 @@ public class RepositoryIntegrationTest {
 		assertThat(wrapper.getLatestRevision(), is(revision));
 	}
 
-	@Test(expected = NotAuditedException.class)
+	@Test
 	public void artficialTestDataTes() {
 		// Repository is empty.
-		countryRepository.findRevisions(100L);
+		Assert.assertEquals(0, countryRepository.findRevisions(100L).getContent().size());
 
 	}
 }
