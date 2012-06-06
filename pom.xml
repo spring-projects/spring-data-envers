@@ -6,6 +6,9 @@
 	<artifactId>spring-data-envers</artifactId>
 	<version>0.1.0.BUILD-SNAPSHOT</version>
 	
+	<name>Spring Data Envers</name>
+	<description>Envers integration for Spring Data</description>
+	
 	<properties>
 		<spring.version>3.1.1.RELEASE</spring.version>
 		<spring.data.jpa.version>1.1.0.RELEASE</spring.data.jpa.version>
@@ -125,6 +128,15 @@
 				<version>2.12</version>
 				<configuration>
 					<junitArtifactName>junit:junit-dep</junitArtifactName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 		</plugins>
