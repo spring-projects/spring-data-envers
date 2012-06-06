@@ -113,8 +113,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
-
-		return getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
+		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST) : getEntitiesForRevisions(
+				(List<N>) revisionNumbers, id, reader);
 	}
 
 	/*

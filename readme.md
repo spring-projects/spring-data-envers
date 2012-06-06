@@ -1,6 +1,6 @@
 # Spring Data Envers #
 
-This project is an extension of the [Spring Data JPA](http://github.com/SpringSource/spring-data-jpa) project to allow access to entity revisions managed by Hibernate Envers. The sources mostly originate from a contribution of Philip Hügelmeyer [@hygl](https://github.com/hygl).
+This project is an extension of the [Spring Data JPA](http://github.com/SpringSource/spring-data-jpa) project to allow access to entity revisions managed by Hibernate Envers. The sources mostly originate from a contribution of Philipp Hügelmeyer [@hygl](https://github.com/hygl).
 
 The core feature of the module consists of an implementation of the `RevisionRepository` of Spring Data Commons.
 
@@ -19,7 +19,7 @@ You can pull in this functionality to your repositories by simply additionally e
 
 
 ```java
-interface PersonRepository extend RevisionRepository<Person, Long, Long>, CrudRepository<Person, Long> {
+interface PersonRepository extend RevisionRepository<Person, Long, Integer>, CrudRepository<Person, Long> {
 
   // Your query methods go here
 }

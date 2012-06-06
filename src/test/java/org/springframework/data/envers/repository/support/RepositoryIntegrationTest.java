@@ -15,11 +15,14 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -101,5 +104,12 @@ public class RepositoryIntegrationTest {
 		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 10));
 		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
 		assertThat(wrapper.getLatestRevision(), is(revision));
+	}
+
+	@Test
+	public void artficialTestDataTes() {
+		// Repository is empty.
+		Assert.assertEquals(0, countryRepository.findRevisions(100L).getContent().size());
+
 	}
 }
