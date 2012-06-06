@@ -15,7 +15,7 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -101,5 +101,10 @@ public class RepositoryIntegrationTest {
 		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 10));
 		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
 		assertThat(wrapper.getLatestRevision(), is(revision));
+	}
+
+	@Test
+	public void returnsEmptyRevisionsForUnrevisionedEntity() {
+		assertThat(countryRepository.findRevisions(100L).getContent(), is(hasSize(0)));
 	}
 }
