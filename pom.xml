@@ -4,7 +4,7 @@
 	
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-envers</artifactId>
-	<version>0.1.0.RELEASE</version>
+	<version>0.2.0.BUILD-SNAPSHOT</version>
 	
 	<name>Spring Data Envers</name>
 	<description>Spring Data extension to work with Hibernate Envers</description>
