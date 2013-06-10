@@ -53,9 +53,9 @@
 	</scm>
 	
 	<properties>
-		<spring.version>3.1.2.RELEASE</spring.version>
-		<spring.data.core.version>1.4.0.RELEASE</spring.data.core.version>
-		<spring.data.jpa.version>1.2.0.RELEASE</spring.data.jpa.version>
+		<spring.version>3.1.4.RELEASE</spring.version>
+		<spring.data.core.version>1.6.0.M1</spring.data.core.version>
+		<spring.data.jpa.version>1.4.0.M1</spring.data.jpa.version>
 		<slf4j.version>1.6.6</slf4j.version>
 		<file.encoding>UTF-8</file.encoding>
 	</properties>
@@ -64,7 +64,7 @@
 
 		<dependency>
 			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-commons-core</artifactId>
+			<artifactId>spring-data-commons</artifactId>
 			<version>${spring.data.core.version}</version>
 		</dependency>
 
