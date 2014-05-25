@@ -5,6 +5,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd">
 
-	<jpa:repositories base-package="org.springframework.data.envers" factory-class="org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean" />
+	<jpa:repositories base-package="org.springframework.data.envers" factory-class="org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean" entity-manager-factory-ref="entityManagerFactoryBean"/>
 
 </beans>
