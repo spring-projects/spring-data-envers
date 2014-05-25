@@ -53,8 +53,8 @@
 	</scm>
 	
 	<properties>
-		<spring.version>3.2.8.RELEASE</spring.version>
-		<spring.data.jpa.version>1.5.2.RELEASE</spring.data.jpa.version>
+		<spring.version>3.2.9.RELEASE</spring.version>
+		<spring.data.jpa.version>1.6.0.RELEASE</spring.data.jpa.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<file.encoding>UTF-8</file.encoding>
 	</properties>

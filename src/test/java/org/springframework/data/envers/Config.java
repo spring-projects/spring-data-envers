@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.hibernate.envers.strategy.ValidityAuditStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.AbstractEntityManagerFactoryBean;
@@ -40,6 +41,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @author Oliver Gierke
  */
 @Configuration
+@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
 public class Config {
 
 	@Bean
@@ -49,13 +51,11 @@ public class Config {
 
 	@Bean
 	public PlatformTransactionManager transactionManager() throws SQLException {
-
-		EntityManagerFactory entityManagerFactory = entityManagerFactoryBean().getObject();
-		return new JpaTransactionManager(entityManagerFactory);
+		return new JpaTransactionManager();
 	}
 
 	@Bean
-	public AbstractEntityManagerFactoryBean entityManagerFactoryBean() throws SQLException {
+	public AbstractEntityManagerFactoryBean entityManagerFactory() throws SQLException {
 
 		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 		jpaVendorAdapter.setDatabase(Database.H2);

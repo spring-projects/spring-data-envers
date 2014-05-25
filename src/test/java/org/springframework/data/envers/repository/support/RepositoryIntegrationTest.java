@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.envers.Config;
@@ -38,7 +36,6 @@ import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 /**
  * Integration tests for repositories.
@@ -46,19 +43,11 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
  * @author Oliver Gierke
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = Config.class)
 public class RepositoryIntegrationTest {
 
-	@ImportResource("classpath:application-context.xml")
-	@Configuration
-	static class RepoConfig extends Config {
-
-	}
-
-	@Autowired
-	LicenseRepository licenseRepository;
-	@Autowired
-	CountryRepository countryRepository;
+	@Autowired LicenseRepository licenseRepository;
+	@Autowired CountryRepository countryRepository;
 
 	@Before
 	public void setUp() {
