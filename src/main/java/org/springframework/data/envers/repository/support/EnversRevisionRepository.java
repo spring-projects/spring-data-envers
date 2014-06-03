@@ -15,16 +15,16 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import java.io.Serializable;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.history.RevisionRepository;
 
+import java.io.Serializable;
+
 /**
  * Convenience interface to allow pulling in {@link JpaRepository} and {@link RevisionRepository} functionality in one
  * go.
- * 
+ *
  * @author Oliver Gierke
  */
 @NoRepositoryBean

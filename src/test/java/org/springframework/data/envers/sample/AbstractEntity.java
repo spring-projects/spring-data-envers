@@ -20,33 +20,40 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import org.springframework.util.ObjectUtils;
-
+/**
+ * @author Alexander Müller
+ */
 @MappedSuperclass
 abstract class AbstractEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	public Long id;
+	private Long id;
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	@Override
-	public boolean equals(Object obj) {
-
-		if (this == obj) {
+	public boolean equals(Object o) {
+		if (this == o) {
 			return true;
 		}
-
-		if (!(obj instanceof AbstractEntity)) {
+		if (!(o instanceof AbstractEntity)) {
 			return false;
 		}
 
-		AbstractEntity that = (AbstractEntity) obj;
+		AbstractEntity that = (AbstractEntity) o;
 
-		return ObjectUtils.nullSafeEquals(this.id, that.id);
+		return id != null ? id.equals(that.id) : that.id == null;
 	}
 
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode() : 0;
+	}
 }

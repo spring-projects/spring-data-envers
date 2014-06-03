@@ -15,22 +15,7 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.persistence.EntityManager;
-
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.DefaultRevisionEntity;
-import org.hibernate.envers.RevisionNumber;
-import org.hibernate.envers.RevisionTimestamp;
+import org.hibernate.envers.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -45,9 +30,14 @@ import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 import org.springframework.util.Assert;
 
+import javax.persistence.EntityManager;
+import java.io.Serializable;
+import java.util.*;
+import java.util.Map.Entry;
+
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
- * 
+ *
  * @author Oliver Gierke
  * @author Philipp Huegelmeyer
  */
@@ -173,7 +163,6 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		List<Revision<N, T>> result = new ArrayList<Revision<N, T>>();
 
 		for (Entry<N, T> revision : source.entrySet()) {
-
 			N revisionNumber = revision.getKey();
 			T entity = revision.getValue();
 			RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(revisionNumber));
