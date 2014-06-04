@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 
 /**
  * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}.
- * 
+ *
  * @author Oliver Gierke
  * @author Philip Huegelmeyer
  */

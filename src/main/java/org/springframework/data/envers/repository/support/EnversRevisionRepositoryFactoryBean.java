@@ -15,26 +15,26 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import java.io.Serializable;
-
-import javax.persistence.EntityManager;
-
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 
+import javax.persistence.EntityManager;
+import java.io.Serializable;
+
 /**
  * {@link FactoryBean} creating {@link RevisionRepository} instances.
- * 
+ *
  * @author Oliver Gierke
+ * @author Alexander Müller
  */
 public class EnversRevisionRepositoryFactoryBean extends
 		JpaRepositoryFactoryBean<EnversRevisionRepository<Object, Serializable, Long>, Object, Serializable> {
@@ -43,7 +43,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 
 	/**
 	 * Configures the revision entity class. Will default to {@link DefaultRevisionEntity}.
-	 * 
+	 *
 	 * @param revisionEntityClass
 	 */
 	public void setRevisionEntityClass(Class<?> revisionEntityClass) {
@@ -61,7 +61,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 
 	/**
 	 * Repository factory creating {@link RevisionRepository} instances.
-	 * 
+	 *
 	 * @author Oliver Gierke
 	 */
 	private static class RevisionRepositoryFactory extends JpaRepositoryFactory {
@@ -70,7 +70,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 
 		/**
 		 * Creates a new {@link RevisionRepositoryFactory} using the given {@link EntityManager} and revision entity class.
-		 * 
+		 *
 		 * @param entityManager must not be {@literal null}.
 		 * @param revisionEntityClass can be {@literal null}, will default to {@link DefaultRevisionEntity}.
 		 */
@@ -87,9 +87,9 @@ public class EnversRevisionRepositoryFactoryBean extends
 		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata, javax.persistence.EntityManager)
 		 */
 		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected <T, ID extends Serializable> JpaRepository<?, ?> getTargetRepository(RepositoryMetadata metadata,
-				EntityManager entityManager) {
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		protected <T, ID extends Serializable> SimpleJpaRepository<?, ?> getTargetRepository(RepositoryMetadata metadata,
+																							 EntityManager entityManager) {
 
 			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(metadata
 					.getDomainType());

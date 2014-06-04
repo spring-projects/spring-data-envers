@@ -24,7 +24,7 @@ import org.springframework.util.ReflectionUtils;
 /**
  * {@link RevisionEntityInformation} that uses reflection to inspect a property annotated with {@link RevisionNumber} to
  * find out about the revision number type.
- * 
+ *
  * @author Oliver Gierke
  */
 public class ReflectionRevisionEntityInformation implements RevisionEntityInformation {
