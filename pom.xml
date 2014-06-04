@@ -59,7 +59,7 @@
 	</scm>
 	
 	<properties>
-		<spring.version>4.0.5.RELEASE</spring.version>
+		<spring.version>3.2.9.RELEASE</spring.version>
 		<spring.data.jpa.version>1.6.0.RELEASE</spring.data.jpa.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<file.encoding>UTF-8</file.encoding>
