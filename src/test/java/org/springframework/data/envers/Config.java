@@ -15,12 +15,6 @@
  */
 package org.springframework.data.envers;
 
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.hibernate.envers.strategy.ValidityAuditStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,9 +29,14 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Spring JavaConfig configuration for general infrastructure.
- * 
+ *
  * @author Oliver Gierke
  */
 @Configuration
@@ -56,7 +55,6 @@ public class Config {
 
 	@Bean
 	public AbstractEntityManagerFactoryBean entityManagerFactory() throws SQLException {
-
 		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
 		jpaVendorAdapter.setDatabase(Database.H2);
 		jpaVendorAdapter.setGenerateDdl(true);

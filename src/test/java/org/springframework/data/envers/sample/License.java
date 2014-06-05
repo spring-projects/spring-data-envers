@@ -15,27 +15,61 @@
  */
 package org.springframework.data.envers.sample;
 
-import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.Version;
-
 import org.hibernate.envers.Audited;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Sample domain class.
- * 
+ *
  * @author Philip Huegelmeyer
+ * @author Alexander Müller
  */
 @Audited
 @Entity
 public class License extends AbstractEntity {
 
 	@Version
-	public Integer version;
+	private Integer version;
 
-	public String name;
-	@ManyToMany
-	public Set<Country> laender;
+	@Column
+	private String name;
+
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	public List<Country> countries = new ArrayList<Country>();
+
+	public License() {
+	}
+
+	public License(String name, Country... countries) {
+		this.name = name;
+		this.countries.addAll(Arrays.asList(countries));
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<Country> getCountries() {
+		return countries;
+	}
+
+	public void setCountries(List<Country> countries) {
+		this.countries = countries;
+	}
 }
