@@ -105,7 +105,8 @@ public class EnversRevisionRepositoryFactoryBean extends
 			return EnversRevisionRepositoryImpl.class;
 		}
 
-		/* (non-Javadoc)
+		/* 
+		 * (non-Javadoc)
 		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, java.lang.Object)
 		 */
 		@Override
