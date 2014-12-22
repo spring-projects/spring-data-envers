@@ -100,7 +100,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 
 		Object revisionEntity = reader.findRevision(revisionEntityClass, latestRevision);
 		RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntity);
-		return new Revision<N, T>(metadata, reader.find(type, id, latestRevision));
+		return new Revision<N, T>(metadata, reader.find(type, type.getName(), id, latestRevision, true));
 	}
 
 	/*
@@ -115,7 +115,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
 		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST) : getEntitiesForRevisions(
-				(List<N>) revisionNumbers, id, reader);
+				(List<N>) revisionNumbers, id, reader, true);
 	}
 
 	/*
@@ -137,7 +137,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		upperBound = upperBound > revisionNumbers.size() ? revisionNumbers.size() : upperBound;
 
 		List<? extends Number> subList = revisionNumbers.subList(pageable.getOffset(), upperBound);
-		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
+		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader, true);
 
 		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
 	}
@@ -151,7 +151,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader) {
+	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader,
+			boolean includeDeletions) {
 
 		Class<T> type = entityInformation.getJavaType();
 		Map<N, T> revisions = new HashMap<N, T>(revisionNumbers.size());
@@ -161,7 +162,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 				new HashSet<Number>(revisionNumbers));
 
 		for (Number number : revisionNumbers) {
-			revisions.put((N) number, reader.find(type, id, number));
+			revisions.put((N) number, reader.find(type, type.getName(), id, number, includeDeletions));
 		}
 
 		return new Revisions<N, T>(toRevisions(revisions, revisionEntities));
