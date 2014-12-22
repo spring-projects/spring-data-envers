@@ -117,6 +117,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		Assert.notNull(revisionNumber, "Revision number must not be null!");
 
 		return getEntityForRevision(revisionNumber, id, AuditReaderFactory.get(entityManager));
+
 	}
 
 	/*
@@ -131,7 +132,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
 		return revisionNumbers.isEmpty() ? Revisions.none()
-				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
+				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader, true);
 	}
 
 	/*
@@ -158,7 +159,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		upperBound = upperBound > revisionNumbers.size() ? revisionNumbers.size() : upperBound;
 
 		List<? extends Number> subList = revisionNumbers.subList(toInt(pageable.getOffset()), toInt(upperBound));
-		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
+		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader, true);
 
 		revisions = isDescending ? revisions.reverse() : revisions;
 
@@ -174,7 +175,8 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader) {
+	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader,
+			boolean includeDeletions) {
 
 		Class<T> type = entityInformation.getJavaType();
 		Map<N, T> revisions = new HashMap<N, T>(revisionNumbers.size());
@@ -184,7 +186,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 				new HashSet<Number>(revisionNumbers));
 
 		for (Number number : revisionNumbers) {
-			revisions.put((N) number, reader.find(type, id, number));
+			revisions.put((N) number, reader.find(type, type.getName(), id, number, includeDeletions));
 		}
 
 		return Revisions.of(toRevisions(revisions, revisionEntities));
