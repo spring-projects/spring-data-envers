@@ -19,7 +19,7 @@ You can pull in this functionality to your repositories by simply additionally e
 
 
 ```java
-interface PersonRepository extend RevisionRepository<Person, Long, Integer>, CrudRepository<Person, Long> {
+interface PersonRepository extends RevisionRepository<Person, Long, Integer>, CrudRepository<Person, Long> {
 
   // Your query methods go here
 }
