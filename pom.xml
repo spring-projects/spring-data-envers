@@ -4,7 +4,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-envers</artifactId>
-	<version>0.3.0.BUILD-SNAPSHOT</version>
+	<version>0.2.1.BUILD-SNAPSHOT</version>
 
 	<name>Spring Data Envers</name>
 	<description>Spring Data extension to work with Hibernate Envers</description>
@@ -22,6 +22,11 @@
 			<email>philip.huegelmeyer@ble.de</email>
 			<organization>BLE</organization>
 			<organizationUrl>www.ble.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Michael Igler</name>
+			<email>michael.igler@forward-tech.de</email>
+			<organization>Freelancer</organization>
 		</developer>
 	</developers>
 

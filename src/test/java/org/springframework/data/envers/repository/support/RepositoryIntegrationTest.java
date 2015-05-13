@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,8 @@ public class RepositoryIntegrationTest {
 
 	@Autowired LicenseRepository licenseRepository;
 	@Autowired CountryRepository countryRepository;
+
+	@Autowired EnversRevisionRepository enversRevisionRepository;
 
 	@Before
 	public void setUp() {
@@ -90,6 +93,18 @@ public class RepositoryIntegrationTest {
 		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 10));
 		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
 		assertThat(wrapper.getLatestRevision(), is(revision));
+
+
+		List<Revision<Integer, Country>> revisionsDe = countryRepository.findRevisions(de.id).getContent();
+		for (Revision<Integer, Country> revisionDe: revisionsDe) {
+			System.out.println("revisionDe.getRevisionNumber(): " + revisionDe.getRevisionNumber());
+			System.out.println("revisionDe.getEntity().name: " + revisionDe.getEntity().name);
+		}
+
+		Revision<Integer, Country> originalCountryRevision = enversRevisionRepository.findRevision(de.id, 2);
+
+		Country originalCountry = originalCountryRevision.getEntity();
+		assertThat(originalCountry.name, is("Deutschland"));
 	}
 
 	@Test

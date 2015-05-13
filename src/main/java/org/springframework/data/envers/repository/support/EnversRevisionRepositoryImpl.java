@@ -16,12 +16,7 @@
 package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
@@ -47,12 +42,12 @@ import org.springframework.util.Assert;
 
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
- * 
+ *
  * @author Oliver Gierke
  * @author Philipp Huegelmeyer
+ * @author Michael Igler
  */
-public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends
-		SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
+public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
 	private final RevisionEntityInformation revisionEntityInformation;
@@ -61,13 +56,13 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	/**
 	 * Creates a new {@link EnversRevisionRepositoryImpl} using the given {@link JpaEntityInformation},
 	 * {@link RevisionEntityInformation} and {@link EntityManager}.
-	 * 
+	 *
 	 * @param entityInformation must not be {@literal null}.
 	 * @param revisionEntityInformation must not be {@literal null}.
 	 * @param entityManager must not be {@literal null}.
 	 */
 	public EnversRevisionRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
-			RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
+										RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
 
 		super(entityInformation, entityManager);
 
@@ -103,6 +98,14 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		return new Revision<N, T>(metadata, reader.find(type, id, latestRevision));
 	}
 
+	@SuppressWarnings("unchecked")
+	public Revision<N, T> findRevision(ID id, N revisionNumber) {
+
+		AuditReader reader = AuditReaderFactory.get(entityManager);
+
+		return getEntityForRevision(revisionNumber, id, reader);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable)
@@ -130,7 +133,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		List<Number> revisionNumbers = reader.getRevisions(type, id);
 
 		if (pageable.getOffset() > revisionNumbers.size()) {
-			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
+			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>>emptyList(), pageable, 0);
 		}
 
 		int upperBound = pageable.getOffset() + pageable.getPageSize();
@@ -142,9 +145,10 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
 	}
 
+
 	/**
 	 * Returns the entities in the given revisions for the entitiy with the given id.
-	 * 
+	 *
 	 * @param revisionNumbers
 	 * @param id
 	 * @param reader
@@ -167,6 +171,25 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		return new Revisions<N, T>(toRevisions(revisions, revisionEntities));
 	}
 
+	/**
+	 * Returns an entity in the given revision for the given entity-id.
+	 *
+	 * @param revisionNumber
+	 * @param id
+	 * @param reader
+	 * @return
+	 */
+	private Revision<N, T> getEntityForRevision(N revisionNumber, ID id, AuditReader reader) {
+
+		Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
+
+		T revision = (T) reader.findRevision(revisionEntityClass, revisionNumber);
+
+		RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revision);
+
+		return new Revision<N, T>(metadata, revision);
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<Revision<N, T>> toRevisions(Map<N, T> source, Map<Number, Object> revisionEntities) {
 
@@ -186,7 +209,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 
 	/**
 	 * Returns the {@link RevisionMetadata} wrapper depending on the type of the given object.
-	 * 
+	 *
 	 * @param object
 	 * @return
 	 */
