@@ -96,15 +96,15 @@ public class RepositoryIntegrationTest {
 
 
 		List<Revision<Integer, Country>> revisionsDe = countryRepository.findRevisions(de.id).getContent();
-
 		for (Revision<Integer, Country> revisionDe: revisionsDe) {
 			System.out.println("revisionDe.getRevisionNumber(): " + revisionDe.getRevisionNumber());
 			System.out.println("revisionDe.getEntity().name: " + revisionDe.getEntity().name);
 		}
 
-		Country originalCountry = (Country) enversRevisionRepository.findRevision(de.id, 2).getEntity();
+		Revision<Integer, Country> originalCountryRevision = enversRevisionRepository.findRevision(de.id, 2);
 
-		//assertThat(originalCountry.name, is("Deutschland"));
+		Country originalCountry = originalCountryRevision.getEntity();
+		assertThat(originalCountry.name, is("Deutschland"));
 	}
 
 	@Test
