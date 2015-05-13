@@ -16,12 +16,7 @@
 package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
@@ -47,154 +42,182 @@ import org.springframework.util.Assert;
 
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
- * 
+ *
  * @author Oliver Gierke
  * @author Philipp Huegelmeyer
+ * @author Michael Igler
  */
-public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends
-		SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
+public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
 
-	private final EntityInformation<T, ?> entityInformation;
-	private final RevisionEntityInformation revisionEntityInformation;
-	private final EntityManager entityManager;
+    private final EntityInformation<T, ?> entityInformation;
+    private final RevisionEntityInformation revisionEntityInformation;
+    private final EntityManager entityManager;
 
-	/**
-	 * Creates a new {@link EnversRevisionRepositoryImpl} using the given {@link JpaEntityInformation},
-	 * {@link RevisionEntityInformation} and {@link EntityManager}.
-	 * 
-	 * @param entityInformation must not be {@literal null}.
-	 * @param revisionEntityInformation must not be {@literal null}.
-	 * @param entityManager must not be {@literal null}.
-	 */
-	public EnversRevisionRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
-			RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
+    /**
+     * Creates a new {@link EnversRevisionRepositoryImpl} using the given {@link JpaEntityInformation},
+     * {@link RevisionEntityInformation} and {@link EntityManager}.
+     *
+     * @param entityInformation         must not be {@literal null}.
+     * @param revisionEntityInformation must not be {@literal null}.
+     * @param entityManager             must not be {@literal null}.
+     */
+    public EnversRevisionRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
+                                        RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
 
-		super(entityInformation, entityManager);
+        super(entityInformation, entityManager);
 
-		Assert.notNull(revisionEntityInformation);
+        Assert.notNull(revisionEntityInformation);
 
-		this.entityInformation = entityInformation;
-		this.revisionEntityInformation = revisionEntityInformation;
-		this.entityManager = entityManager;
-	}
+        this.entityInformation = entityInformation;
+        this.revisionEntityInformation = revisionEntityInformation;
+        this.entityManager = entityManager;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.history.RevisionRepository#findLastChangeRevision(java.io.Serializable)
-	 */
-	@SuppressWarnings("unchecked")
-	public Revision<N, T> findLastChangeRevision(ID id) {
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.repository.history.RevisionRepository#findLastChangeRevision(java.io.Serializable)
+     */
+    @SuppressWarnings("unchecked")
+    public Revision<N, T> findLastChangeRevision(ID id) {
 
-		Class<T> type = entityInformation.getJavaType();
-		AuditReader reader = AuditReaderFactory.get(entityManager);
+        Class<T> type = entityInformation.getJavaType();
+        AuditReader reader = AuditReaderFactory.get(entityManager);
 
-		List<Number> revisions = reader.getRevisions(type, id);
+        List<Number> revisions = reader.getRevisions(type, id);
 
-		if (revisions.isEmpty()) {
-			return null;
-		}
+        if (revisions.isEmpty()) {
+            return null;
+        }
 
-		N latestRevision = (N) revisions.get(revisions.size() - 1);
+        N latestRevision = (N) revisions.get(revisions.size() - 1);
 
-		Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
+        Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
 
-		Object revisionEntity = reader.findRevision(revisionEntityClass, latestRevision);
-		RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntity);
-		return new Revision<N, T>(metadata, reader.find(type, id, latestRevision));
-	}
+        Object revisionEntity = reader.findRevision(revisionEntityClass, latestRevision);
+        RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntity);
+        return new Revision<N, T>(metadata, reader.find(type, id, latestRevision));
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable)
-	 */
-	@SuppressWarnings("unchecked")
-	public Revisions<N, T> findRevisions(ID id) {
+    @SuppressWarnings("unchecked")
+    public Revision<N, T> findRevision(ID id, N revisionNumber) {
 
-		Class<T> type = entityInformation.getJavaType();
-		AuditReader reader = AuditReaderFactory.get(entityManager);
-		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
+        AuditReader reader = AuditReaderFactory.get(entityManager);
 
-		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST) : getEntitiesForRevisions(
-				(List<N>) revisionNumbers, id, reader);
-	}
+        return getEntityForRevision(revisionNumber, id, reader);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable, org.springframework.data.domain.Pageable)
-	 */
-	@SuppressWarnings("unchecked")
-	public Page<Revision<N, T>> findRevisions(ID id, Pageable pageable) {
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable)
+     */
+    @SuppressWarnings("unchecked")
+    public Revisions<N, T> findRevisions(ID id) {
 
-		Class<T> type = entityInformation.getJavaType();
-		AuditReader reader = AuditReaderFactory.get(entityManager);
-		List<Number> revisionNumbers = reader.getRevisions(type, id);
+        Class<T> type = entityInformation.getJavaType();
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+        List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
-		if (pageable.getOffset() > revisionNumbers.size()) {
-			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
-		}
+        return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST) : getEntitiesForRevisions(
+                (List<N>) revisionNumbers, id, reader);
+    }
 
-		int upperBound = pageable.getOffset() + pageable.getPageSize();
-		upperBound = upperBound > revisionNumbers.size() ? revisionNumbers.size() : upperBound;
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable, org.springframework.data.domain.Pageable)
+     */
+    @SuppressWarnings("unchecked")
+    public Page<Revision<N, T>> findRevisions(ID id, Pageable pageable) {
 
-		List<? extends Number> subList = revisionNumbers.subList(pageable.getOffset(), upperBound);
-		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
+        Class<T> type = entityInformation.getJavaType();
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+        List<Number> revisionNumbers = reader.getRevisions(type, id);
 
-		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
-	}
+        if (pageable.getOffset() > revisionNumbers.size()) {
+            return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>>emptyList(), pageable, 0);
+        }
 
-	/**
-	 * Returns the entities in the given revisions for the entitiy with the given id.
-	 * 
-	 * @param revisionNumbers
-	 * @param id
-	 * @param reader
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader) {
+        int upperBound = pageable.getOffset() + pageable.getPageSize();
+        upperBound = upperBound > revisionNumbers.size() ? revisionNumbers.size() : upperBound;
 
-		Class<T> type = entityInformation.getJavaType();
-		Map<N, T> revisions = new HashMap<N, T>(revisionNumbers.size());
+        List<? extends Number> subList = revisionNumbers.subList(pageable.getOffset(), upperBound);
+        Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
 
-		Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
-		Map<Number, Object> revisionEntities = (Map<Number, Object>) reader.findRevisions(revisionEntityClass,
-				new HashSet<Number>(revisionNumbers));
+        return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
+    }
 
-		for (Number number : revisionNumbers) {
-			revisions.put((N) number, reader.find(type, id, number));
-		}
 
-		return new Revisions<N, T>(toRevisions(revisions, revisionEntities));
-	}
+    /**
+     * Returns the entities in the given revisions for the entitiy with the given id.
+     *
+     * @param revisionNumbers
+     * @param id
+     * @param reader
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader) {
 
-	@SuppressWarnings("unchecked")
-	private List<Revision<N, T>> toRevisions(Map<N, T> source, Map<Number, Object> revisionEntities) {
+        Class<T> type = entityInformation.getJavaType();
+        Map<N, T> revisions = new HashMap<N, T>(revisionNumbers.size());
 
-		List<Revision<N, T>> result = new ArrayList<Revision<N, T>>();
+        Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
+        Map<Number, Object> revisionEntities = (Map<Number, Object>) reader.findRevisions(revisionEntityClass,
+                new HashSet<Number>(revisionNumbers));
 
-		for (Entry<N, T> revision : source.entrySet()) {
+        for (Number number : revisionNumbers) {
+            revisions.put((N) number, reader.find(type, id, number));
+        }
 
-			N revisionNumber = revision.getKey();
-			T entity = revision.getValue();
-			RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(revisionNumber));
-			result.add(new Revision<N, T>(metadata, entity));
-		}
+        return new Revisions<N, T>(toRevisions(revisions, revisionEntities));
+    }
 
-		Collections.sort(result);
-		return Collections.unmodifiableList(result);
-	}
+    /**
+     * Returns an entity in the given revision for the given entity-id.
+     *
+     * @param revisionNumber
+     * @param id
+     * @param reader
+     * @return
+     */
+    private Revision<N, T> getEntityForRevision(N revisionNumber, ID id, AuditReader reader) {
 
-	/**
-	 * Returns the {@link RevisionMetadata} wrapper depending on the type of the given object.
-	 * 
-	 * @param object
-	 * @return
-	 */
-	private RevisionMetadata<?> getRevisionMetadata(Object object) {
-		if (object instanceof DefaultRevisionEntity) {
-			return new DefaultRevisionMetadata((DefaultRevisionEntity) object);
-		} else {
-			return new AnnotationRevisionMetadata<N>(object, RevisionNumber.class, RevisionTimestamp.class);
-		}
-	}
+        Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
+
+        T revision = (T) reader.findRevision(revisionEntityClass, revisionNumber);
+
+        RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revision);
+
+        return new Revision<N, T>(metadata, revision);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Revision<N, T>> toRevisions(Map<N, T> source, Map<Number, Object> revisionEntities) {
+
+        List<Revision<N, T>> result = new ArrayList<Revision<N, T>>();
+
+        for (Entry<N, T> revision : source.entrySet()) {
+
+            N revisionNumber = revision.getKey();
+            T entity = revision.getValue();
+            RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(revisionNumber));
+            result.add(new Revision<N, T>(metadata, entity));
+        }
+
+        Collections.sort(result);
+        return Collections.unmodifiableList(result);
+    }
+
+    /**
+     * Returns the {@link RevisionMetadata} wrapper depending on the type of the given object.
+     *
+     * @param object
+     * @return
+     */
+    private RevisionMetadata<?> getRevisionMetadata(Object object) {
+        if (object instanceof DefaultRevisionEntity) {
+            return new DefaultRevisionMetadata((DefaultRevisionEntity) object);
+        } else {
+            return new AnnotationRevisionMetadata<N>(object, RevisionNumber.class, RevisionTimestamp.class);
+        }
+    }
 }
