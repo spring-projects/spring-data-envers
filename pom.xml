@@ -23,6 +23,11 @@
 			<organization>BLE</organization>
 			<organizationUrl>www.ble.de</organizationUrl>
 		</developer>
+		<developer>
+			<name>Michael Igler</name>
+			<email>michael.igler@forward-tech.de</email>
+			<organization>Freelancer</organization>
+		</developer>
 	</developers>
 
 	<licenses>
