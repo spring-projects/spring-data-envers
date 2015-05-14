@@ -20,8 +20,9 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,8 +50,6 @@ public class RepositoryIntegrationTest {
 
 	@Autowired LicenseRepository licenseRepository;
 	@Autowired CountryRepository countryRepository;
-
-	@Autowired EnversRevisionRepository enversRevisionRepository;
 
 	@Before
 	public void setUp() {
@@ -93,22 +92,38 @@ public class RepositoryIntegrationTest {
 		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 10));
 		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
 		assertThat(wrapper.getLatestRevision(), is(revision));
-
-
-		List<Revision<Integer, Country>> revisionsDe = countryRepository.findRevisions(de.id).getContent();
-		for (Revision<Integer, Country> revisionDe: revisionsDe) {
-			System.out.println("revisionDe.getRevisionNumber(): " + revisionDe.getRevisionNumber());
-			System.out.println("revisionDe.getEntity().name: " + revisionDe.getEntity().name);
-		}
-
-		Revision<Integer, Country> originalCountryRevision = enversRevisionRepository.findRevision(de.id, 2);
-
-		Country originalCountry = originalCountryRevision.getEntity();
-		assertThat(originalCountry.name, is("Deutschland"));
 	}
 
 	@Test
 	public void returnsEmptyRevisionsForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevisions(100L).getContent(), is(hasSize(0)));
+	}
+
+	/**
+	 * @see #31
+	 */
+	@Test
+	public void returnsParticularRevisionForAnEntity() {
+
+		Country de = new Country();
+		de.code = "de";
+		de.name = "Deutschland";
+
+		countryRepository.save(de);
+
+		de.name = "Germany";
+
+		countryRepository.save(de);
+
+		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
+
+		assertThat(revisions, is(Matchers.<Revision<Integer, Country>> iterableWithSize(2)));
+
+		Iterator<Revision<Integer, Country>> iterator = revisions.iterator();
+		Revision<Integer, Country> first = iterator.next();
+		Revision<Integer, Country> second = iterator.next();
+
+		assertThat(countryRepository.findRevision(de.id, first.getRevisionNumber()).getEntity().name, is("Deutschland"));
+		assertThat(countryRepository.findRevision(de.id, second.getRevisionNumber()).getEntity().name, is("Germany"));
 	}
 }

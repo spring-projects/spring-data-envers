@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,18 @@ import org.springframework.data.repository.history.RevisionRepository;
  * go.
  *
  * @author Oliver Gierke
+ * @author Michael Igler
  */
 @NoRepositoryBean
-public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>>
-		extends RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
+public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>> extends
+		RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
 
+	/**
+	 * Returns the entity with the given ID in the given revision number.
+	 * 
+	 * @param id must not be {@literal null}.
+	 * @param revisionNumber must not be {@literal null}.
+	 * @return
+	 */
 	Revision<N, T> findRevision(ID id, N revisionNumber);
 }

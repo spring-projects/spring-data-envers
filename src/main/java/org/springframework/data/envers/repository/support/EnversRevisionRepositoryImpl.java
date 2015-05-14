@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,12 @@
 package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
@@ -36,7 +41,6 @@ import org.springframework.data.history.Revisions;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.EntityInformation;
-import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 import org.springframework.util.Assert;
 
@@ -47,7 +51,8 @@ import org.springframework.util.Assert;
  * @author Philipp Huegelmeyer
  * @author Michael Igler
  */
-public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
+public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends
+		SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
 	private final RevisionEntityInformation revisionEntityInformation;
@@ -62,7 +67,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @param entityManager must not be {@literal null}.
 	 */
 	public EnversRevisionRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
-										RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
+			RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
 
 		super(entityInformation, entityManager);
 
@@ -98,12 +103,17 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		return new Revision<N, T>(metadata, reader.find(type, id, latestRevision));
 	}
 
-	@SuppressWarnings("unchecked")
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.envers.repository.support.EnversRevisionRepository#findRevision(java.io.Serializable, java.lang.Number)
+	 */
+	@Override
 	public Revision<N, T> findRevision(ID id, N revisionNumber) {
 
-		AuditReader reader = AuditReaderFactory.get(entityManager);
+		Assert.notNull(id, "Identifier must not be null!");
+		Assert.notNull(revisionNumber, "Revision number must not be null!");
 
-		return getEntityForRevision(revisionNumber, id, reader);
+		return getEntityForRevision(revisionNumber, id, AuditReaderFactory.get(entityManager));
 	}
 
 	/*
@@ -133,7 +143,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		List<Number> revisionNumbers = reader.getRevisions(type, id);
 
 		if (pageable.getOffset() > revisionNumbers.size()) {
-			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>>emptyList(), pageable, 0);
+			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
 		}
 
 		int upperBound = pageable.getOffset() + pageable.getPageSize();
@@ -144,7 +154,6 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 
 		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
 	}
-
 
 	/**
 	 * Returns the entities in the given revisions for the entitiy with the given id.
@@ -179,15 +188,15 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @param reader
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private Revision<N, T> getEntityForRevision(N revisionNumber, ID id, AuditReader reader) {
 
-		Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
+		Class<?> type = revisionEntityInformation.getRevisionEntityClass();
 
-		T revision = (T) reader.findRevision(revisionEntityClass, revisionNumber);
+		T revision = (T) reader.findRevision(type, revisionNumber);
+		Object entity = reader.find(entityInformation.getJavaType(), id, revisionNumber);
 
-		RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revision);
-
-		return new Revision<N, T>(metadata, revision);
+		return new Revision<N, T>((RevisionMetadata<N>) getRevisionMetadata(revision), (T) entity);
 	}
 
 	@SuppressWarnings("unchecked")
