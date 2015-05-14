@@ -13,9 +13,9 @@
 	<developers>
 		<developer>
 			<name>Oliver Gierke</name>
-			<email>ogierke@vmware.com</email>
-			<organization>SpringSource, a division of VMware</organization>
-			<organizationUrl>www.springsource.org</organizationUrl>
+			<email>ogierke@pivotal.io</email>
+			<organization>Pivotal Software, Inc.</organization>
+			<organizationUrl>www.spring.io</organizationUrl>
 		</developer>
 		<developer>
 			<name>Philip Huegelmeyer</name>
@@ -58,9 +58,9 @@
 	</scm>
 
 	<properties>
-		<spring.version>3.2.10.RELEASE</spring.version>
-		<spring.data.jpa.version>1.6.1.RELEASE</spring.data.jpa.version>
-		<slf4j.version>1.7.7</slf4j.version>
+		<spring.version>4.0.9.RELEASE</spring.version>
+		<spring.data.jpa.version>1.8.0.RELEASE</spring.data.jpa.version>
+		<slf4j.version>1.7.10</slf4j.version>
 		<file.encoding>UTF-8</file.encoding>
 	</properties>
 
@@ -132,7 +132,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-envers</artifactId>
-			<version>4.3.5.Final</version>
+			<version>4.3.9.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
@@ -156,8 +156,8 @@
 
 		<dependency>
 			<groupId>junit</groupId>
-			<artifactId>junit-dep</artifactId>
-			<version>4.10</version>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -197,16 +197,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.17</version>
-				<configuration>
-					<junitArtifactName>junit:junit-dep</junitArtifactName>
-				</configuration>
+				<version>2.18.1</version>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.3</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
