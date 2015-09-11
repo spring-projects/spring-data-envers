@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
+import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.querydsl.QueryDslUtils;
 import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
@@ -87,15 +89,19 @@ public class EnversRevisionRepositoryFactoryBean extends
 
 		/* 
 		 * (non-Javadoc)
-		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata, javax.persistence.EntityManager)
+		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getTargetRepository(org.springframework.data.repository.core.RepositoryInformation)
 		 */
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected EnversRevisionRepositoryImpl getTargetRepository(RepositoryInformation information) {
+		protected EnversRevisionRepository<T, ID, N> getTargetRepository(RepositoryInformation information) {
 
-			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(information.getDomainType());
+			JpaEntityInformation<T, ID> entityInformation = (JpaEntityInformation<T, ID>) getEntityInformation(information.getDomainType());
 
-			return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation , revisionEntityInformation, entityManager);
+			if (isQueryDslExecutor(information.getRepositoryInterface())) {
+				return new QueryDslWithEnversRevisionRepository<T, ID, N>(entityInformation, revisionEntityInformation, entityManager);
+			} else {
+				return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation , revisionEntityInformation, entityManager);
+			}
 		}
 
 		/*
@@ -104,10 +110,24 @@ public class EnversRevisionRepositoryFactoryBean extends
 		 */
 		@Override
 		protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
-			return EnversRevisionRepositoryImpl.class;
+			if (isQueryDslExecutor(metadata.getRepositoryInterface())) {
+				return QueryDslWithEnversRevisionRepository.class;
+			} else {
+				return EnversRevisionRepositoryImpl.class;
+			}
 		}
 
-		/* 
+		/**
+		 * Returns whether the given repository interface requires a QueryDsl specific implementation to be chosen.
+		 *
+		 * @param repositoryInterface
+		 * @return
+		 */
+		private boolean isQueryDslExecutor(Class<?> repositoryInterface) {
+			return QueryDslUtils.QUERY_DSL_PRESENT && QueryDslPredicateExecutor.class.isAssignableFrom(repositoryInterface);
+		}
+
+		/*
 		 * (non-Javadoc)
 		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, java.lang.Object)
 		 */
