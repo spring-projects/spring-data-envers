@@ -60,6 +60,7 @@
 	<properties>
 		<spring.version>4.0.9.RELEASE</spring.version>
 		<spring.data.jpa.version>1.8.0.RELEASE</spring.data.jpa.version>
+		<querydsl>3.6.2</querydsl>
 		<slf4j.version>1.7.10</slf4j.version>
 		<file.encoding>UTF-8</file.encoding>
 	</properties>
@@ -114,6 +115,21 @@
 			<version>${spring.version}</version>
 		</dependency>
 
+		<!-- QueryDsl -->
+		<dependency>
+			<groupId>com.mysema.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+			<version>${querydsl}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mysema.querydsl</groupId>
+			<artifactId>querydsl-jpa</artifactId>
+			<version>${querydsl}</version>
+			<optional>true</optional>
+		</dependency>
+		
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -26,6 +26,8 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.querydsl.QueryDslUtils;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -102,9 +104,23 @@ public class EnversRevisionRepositoryFactoryBean extends
 		 */
 		@Override
 		protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
-			return EnversRevisionRepositoryImpl.class;
+			if (isQueryDslExecutor(metadata.getRepositoryInterface())) {
+				return QueryDslWithEnversRevisionRepository.class;
+			} else {
+				return EnversRevisionRepositoryImpl.class;
+			}
 		}
 
+		/**
+		 * Returns whether the given repository interface requires a QueryDsl specific implementation to be chosen.
+		 * 
+		 * @param repositoryInterface
+		 * @return
+		 */
+		private boolean isQueryDslExecutor(Class<?> repositoryInterface) {
+			return QueryDslUtils.QUERY_DSL_PRESENT && QueryDslPredicateExecutor.class.isAssignableFrom(repositoryInterface);
+		}
+		
 		/* 
 		 * (non-Javadoc)
 		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, java.lang.Object)
