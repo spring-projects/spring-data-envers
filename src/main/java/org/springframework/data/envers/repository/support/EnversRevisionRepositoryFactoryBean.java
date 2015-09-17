@@ -99,17 +99,14 @@ public class EnversRevisionRepositoryFactoryBean extends
 	            RepositoryInformation information, EntityManager entityManager) {
 
 	        JpaEntityInformation<?, Serializable> entityInformation = getEntityInformation(information.getDomainType());
-	        
-	        //return getTargetRepository(entityInformation, entityManager);
 	        Class<?> repoBaseClass = information.getRepositoryBaseClass();
 	        SimpleJpaRepository<?, ?> result = null;
 	        if(RevisionRepository.class.isAssignableFrom(repoBaseClass)) {
 	            result = getTargetRepositoryViaReflection(information, entityInformation, revisionEntityInformation, entityManager);
 	        }
 	        else { 
-	          result = getTargetRepositoryViaReflection(information, entityInformation, entityManager);
+	          result = super.getTargetRepository(information, entityManager);
 	        }
-	        
 	        return result;
 	    }
 
