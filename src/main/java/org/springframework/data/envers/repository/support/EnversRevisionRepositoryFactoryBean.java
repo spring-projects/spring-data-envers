@@ -22,10 +22,14 @@ import javax.persistence.EntityManager;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.data.querydsl.QueryDslPredicateExecutor;
+import org.springframework.data.querydsl.QueryDslUtils;
+import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -82,19 +86,43 @@ public class EnversRevisionRepositoryFactoryBean extends
 					: new ReflectionRevisionEntityInformation(revisionEntityClass);
 		}
 
+	    /**
+	     * Callback to create a {@link JpaRepository} instance with the given {@link EntityManager}
+	     * 
+	     * @param <T>
+	     * @param <ID>
+	     * @param entityManager
+	     * @see #getTargetRepository(RepositoryMetadata)
+	     * @return
+	     */
+	    protected <T, ID extends Serializable> SimpleJpaRepository<?, ?> getTargetRepository(
+	            RepositoryInformation information, EntityManager entityManager) {
+
+	        JpaEntityInformation<?, Serializable> entityInformation = getEntityInformation(information.getDomainType());
+	        Class<?> repoBaseClass = information.getRepositoryBaseClass();
+	        SimpleJpaRepository<?, ?> result = null;
+	        if(RevisionRepository.class.isAssignableFrom(repoBaseClass)) {
+	            result = getTargetRepositoryViaReflection(information, entityInformation, revisionEntityInformation, entityManager);
+	        }
+	        else { 
+	          result = super.getTargetRepository(information, entityManager);
+	        }
+	        return result;
+	    }
+
 		/* 
 		 * (non-Javadoc)
 		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata, javax.persistence.EntityManager)
-		 */
+		 * /
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		protected <T, ID extends Serializable> SimpleJpaRepository<?, ?> getTargetRepository(RepositoryMetadata metadata,
-				EntityManager entityManager) {
+		    JpaEntityInformation<?, Serializable> entityInformation, EntityManager entityManager) {
 
 			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(metadata
 					.getDomainType());
 			return new EnversRevisionRepositoryImpl(entityInformation, revisionEntityInformation, entityManager);
-		}
+		}*/
 
 		/*
 		 * (non-Javadoc)
@@ -102,9 +130,23 @@ public class EnversRevisionRepositoryFactoryBean extends
 		 */
 		@Override
 		protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
-			return EnversRevisionRepositoryImpl.class;
+			if (isQueryDslExecutor(metadata.getRepositoryInterface())) {
+				return QueryDslWithEnversRevisionRepository.class;
+			} else {
+				return EnversRevisionRepositoryImpl.class;
+			}
 		}
 
+		/**
+		 * Returns whether the given repository interface requires a QueryDsl specific implementation to be chosen.
+		 * 
+		 * @param repositoryInterface
+		 * @return
+		 */
+		private boolean isQueryDslExecutor(Class<?> repositoryInterface) {
+			return QueryDslUtils.QUERY_DSL_PRESENT && QueryDslPredicateExecutor.class.isAssignableFrom(repositoryInterface);
+		}
+		
 		/* 
 		 * (non-Javadoc)
 		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, java.lang.Object)
