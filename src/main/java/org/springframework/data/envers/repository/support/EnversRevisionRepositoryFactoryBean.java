@@ -25,7 +25,7 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -35,6 +35,7 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
  * {@link FactoryBean} creating {@link RevisionRepository} instances.
  * 
  * @author Oliver Gierke
+ * @author Michael Igler
  */
 public class EnversRevisionRepositoryFactoryBean extends
 		JpaRepositoryFactoryBean<EnversRevisionRepository<Object, Serializable, Long>, Object, Serializable> {
@@ -64,9 +65,10 @@ public class EnversRevisionRepositoryFactoryBean extends
 	 * 
 	 * @author Oliver Gierke
 	 */
-	private static class RevisionRepositoryFactory extends JpaRepositoryFactory {
+	private static class RevisionRepositoryFactory<T, ID extends Serializable, N extends Number & Comparable<N>> extends JpaRepositoryFactory {
 
 		private final RevisionEntityInformation revisionEntityInformation;
+		private final EntityManager entityManager;
 
 		/**
 		 * Creates a new {@link RevisionRepositoryFactory} using the given {@link EntityManager} and revision entity class.
@@ -77,6 +79,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 		public RevisionRepositoryFactory(EntityManager entityManager, Class<?> revisionEntityClass) {
 
 			super(entityManager);
+			this.entityManager = entityManager;
 			revisionEntityClass = revisionEntityClass == null ? DefaultRevisionEntity.class : revisionEntityClass;
 			this.revisionEntityInformation = DefaultRevisionEntity.class.equals(revisionEntityClass) ? new DefaultRevisionEntityInformation()
 					: new ReflectionRevisionEntityInformation(revisionEntityClass);
@@ -88,12 +91,11 @@ public class EnversRevisionRepositoryFactoryBean extends
 		 */
 		@Override
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected <T, ID extends Serializable> SimpleJpaRepository<?, ?> getTargetRepository(RepositoryMetadata metadata,
-				EntityManager entityManager) {
+		protected EnversRevisionRepositoryImpl getTargetRepository(RepositoryInformation information) {
 
-			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(metadata
-					.getDomainType());
-			return new EnversRevisionRepositoryImpl(entityInformation, revisionEntityInformation, entityManager);
+			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(information.getDomainType());
+
+			return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation , revisionEntityInformation, entityManager);
 		}
 
 		/*
