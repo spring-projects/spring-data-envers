@@ -53,12 +53,14 @@ public class RepositoryIntegrationTest {
 	@Autowired LicenseRepository licenseRepository;
 	@Autowired CountryRepository countryRepository;
 
-	@Before public void setUp() {
+	@Before
+	public void setUp() {
 		licenseRepository.deleteAll();
 		countryRepository.deleteAll();
 	}
 
-	@Test public void testname() {
+	@Test
+	public void testname() {
 
 		License license = new License();
 		license.name = "Schnitzel";
@@ -95,14 +97,16 @@ public class RepositoryIntegrationTest {
 		assertThat(wrapper.getLatestRevision(), is(revision));
 	}
 
-	@Test public void returnsEmptyRevisionsForUnrevisionedEntity() {
+	@Test
+	public void returnsEmptyRevisionsForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevisions(100L).getContent(), is(hasSize(0)));
 	}
 
 	/**
 	 * @see #31
 	 */
-	@Test public void returnsParticularRevisionForAnEntity() {
+	@Test
+	public void returnsParticularRevisionForAnEntity() {
 
 		Country de = new Country();
 		de.code = "de";
