@@ -1,5 +1,18 @@
+# Eclipse
 .classpath
 .project
 .springBeans
 .settings/
+.metadata/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
 target/

@@ -17,6 +17,8 @@ package org.springframework.data.envers.repository.support;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static org.springframework.data.envers.repository.support.EnversRevisionRepository.SortProperty.REVISION_NUMBER;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.envers.Config;
 import org.springframework.data.envers.sample.Country;
 import org.springframework.data.envers.sample.CountryRepository;
@@ -41,7 +44,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Integration tests for repositories.
- * 
+ *
  * @author Oliver Gierke
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -89,7 +92,8 @@ public class RepositoryIntegrationTest {
 		Revision<Integer, License> revision = licenseRepository.findLastChangeRevision(license.id);
 		assertThat(revision, is(notNullValue()));
 
-		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 10));
+		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 1,
+				new Sort(new Sort.Order(DESC, REVISION_NUMBER.getOutwardFacing()))));
 		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
 		assertThat(wrapper.getLatestRevision(), is(revision));
 	}

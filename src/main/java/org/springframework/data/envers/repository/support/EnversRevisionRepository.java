@@ -17,6 +17,7 @@ package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.history.Revision;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -35,10 +36,45 @@ public interface EnversRevisionRepository<T, ID extends Serializable, N extends 
 
 	/**
 	 * Returns the entity with the given ID in the given revision number.
-	 * 
+	 *
 	 * @param id must not be {@literal null}.
 	 * @param revisionNumber must not be {@literal null}.
 	 * @return
 	 */
 	Revision<N, T> findRevision(ID id, N revisionNumber);
+
+    String REVISION_PROPERTY_PREFIX = "revisionProperty.";
+
+    String AUDITED_ENTITY_PROPERTY_PREFIX = "entityProperty.";
+
+    enum SortProperty {
+        REVISION_NUMBER("revisionNumber"),
+        DYNAMIC_PROPERTY;
+
+        private final String outwardFacing;
+
+        SortProperty(){
+            outwardFacing = "";
+        }
+
+        SortProperty(String outwardFacing){
+            this.outwardFacing = outwardFacing;
+        }
+
+        public String getOutwardFacing() {
+            return outwardFacing;
+        }
+
+        public static SortProperty from(Sort.Order sortOrder){
+            SortProperty ret = DYNAMIC_PROPERTY;
+            for (SortProperty sortProperty : values()) {
+                if (sortProperty.outwardFacing.equals(sortOrder.getProperty())){
+                    ret = sortProperty;
+                    break;
+                }
+            }
+            return ret;
+        }
+
+    }
 }
