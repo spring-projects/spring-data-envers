@@ -15,13 +15,13 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import java.io.Serializable;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.data.history.Revision;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.history.RevisionRepository;
+
+import java.io.Serializable;
 
 /**
  * Convenience interface to allow pulling in {@link JpaRepository} and {@link RevisionRepository} functionality in one
@@ -31,50 +31,50 @@ import org.springframework.data.repository.history.RevisionRepository;
  * @author Michael Igler
  */
 @NoRepositoryBean
-public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>> extends
-		RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
+public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>>
+		extends RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
 
 	/**
 	 * Returns the entity with the given ID in the given revision number.
 	 *
-	 * @param id must not be {@literal null}.
+	 * @param id             must not be {@literal null}.
 	 * @param revisionNumber must not be {@literal null}.
 	 * @return
 	 */
 	Revision<N, T> findRevision(ID id, N revisionNumber);
 
-    String REVISION_PROPERTY_PREFIX = "revisionProperty.";
+	String REVISION_PROPERTY_PREFIX = "revisionProperty.";
 
-    String AUDITED_ENTITY_PROPERTY_PREFIX = "entityProperty.";
+	String AUDITED_ENTITY_PROPERTY_PREFIX = "entityProperty.";
 
-    enum SortProperty {
-        REVISION_NUMBER("revisionNumber"),
-        DYNAMIC_PROPERTY;
+	enum SortProperty {
+		REVISION_NUMBER("revisionNumber"),
+		DYNAMIC_PROPERTY;
 
-        private final String outwardFacing;
+		private final String outwardFacing;
 
-        SortProperty(){
-            outwardFacing = "";
-        }
+		SortProperty() {
+			outwardFacing = "";
+		}
 
-        SortProperty(String outwardFacing){
-            this.outwardFacing = outwardFacing;
-        }
+		SortProperty(String outwardFacing) {
+			this.outwardFacing = outwardFacing;
+		}
 
-        public String getOutwardFacing() {
-            return outwardFacing;
-        }
+		public String getOutwardFacing() {
+			return outwardFacing;
+		}
 
-        public static SortProperty from(Sort.Order sortOrder){
-            SortProperty ret = DYNAMIC_PROPERTY;
-            for (SortProperty sortProperty : values()) {
-                if (sortProperty.outwardFacing.equals(sortOrder.getProperty())){
-                    ret = sortProperty;
-                    break;
-                }
-            }
-            return ret;
-        }
+		public static SortProperty from(Sort.Order sortOrder) {
+			SortProperty ret = DYNAMIC_PROPERTY;
+			for (SortProperty sortProperty : values()) {
+				if (sortProperty.outwardFacing.equals(sortOrder.getProperty())) {
+					ret = sortProperty;
+					break;
+				}
+			}
+			return ret;
+		}
 
-    }
+	}
 }

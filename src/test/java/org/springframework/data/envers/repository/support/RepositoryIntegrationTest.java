@@ -15,15 +15,6 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static org.springframework.data.envers.repository.support.EnversRevisionRepository.SortProperty.REVISION_NUMBER;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,26 +33,32 @@ import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static org.springframework.data.envers.repository.support.EnversRevisionRepository.SortProperty.REVISION_NUMBER;
+
 /**
  * Integration tests for repositories.
  *
  * @author Oliver Gierke
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Config.class)
+@RunWith(SpringJUnit4ClassRunner.class) @ContextConfiguration(classes = Config.class)
 public class RepositoryIntegrationTest {
 
 	@Autowired LicenseRepository licenseRepository;
 	@Autowired CountryRepository countryRepository;
 
-	@Before
-	public void setUp() {
+	@Before public void setUp() {
 		licenseRepository.deleteAll();
 		countryRepository.deleteAll();
 	}
 
-	@Test
-	public void testname() {
+	@Test public void testname() {
 
 		License license = new License();
 		license.name = "Schnitzel";
@@ -92,22 +89,20 @@ public class RepositoryIntegrationTest {
 		Revision<Integer, License> revision = licenseRepository.findLastChangeRevision(license.id);
 		assertThat(revision, is(notNullValue()));
 
-		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 1,
-				new Sort(new Sort.Order(DESC, REVISION_NUMBER.getOutwardFacing()))));
+		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id,
+				new PageRequest(0, 1, new Sort(new Sort.Order(DESC, REVISION_NUMBER.getOutwardFacing()))));
 		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
 		assertThat(wrapper.getLatestRevision(), is(revision));
 	}
 
-	@Test
-	public void returnsEmptyRevisionsForUnrevisionedEntity() {
+	@Test public void returnsEmptyRevisionsForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevisions(100L).getContent(), is(hasSize(0)));
 	}
 
 	/**
 	 * @see #31
 	 */
-	@Test
-	public void returnsParticularRevisionForAnEntity() {
+	@Test public void returnsParticularRevisionForAnEntity() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -121,7 +116,7 @@ public class RepositoryIntegrationTest {
 
 		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
 
-		assertThat(revisions, is(Matchers.<Revision<Integer, Country>> iterableWithSize(2)));
+		assertThat(revisions, is(Matchers.<Revision<Integer, Country>>iterableWithSize(2)));
 
 		Iterator<Revision<Integer, Country>> iterator = revisions.iterator();
 		Revision<Integer, Country> first = iterator.next();
