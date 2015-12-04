@@ -15,6 +15,12 @@
  */
 package org.springframework.data.envers.repository.support;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,12 +39,6 @@ import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static org.springframework.data.envers.repository.support.EnversRevisionRepository.SortProperty.REVISION_NUMBER;
 
@@ -47,7 +47,8 @@ import static org.springframework.data.envers.repository.support.EnversRevisionR
  *
  * @author Oliver Gierke
  */
-@RunWith(SpringJUnit4ClassRunner.class) @ContextConfiguration(classes = Config.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = Config.class)
 public class RepositoryIntegrationTest {
 
 	@Autowired LicenseRepository licenseRepository;
@@ -120,7 +121,7 @@ public class RepositoryIntegrationTest {
 
 		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
 
-		assertThat(revisions, is(Matchers.<Revision<Integer, Country>>iterableWithSize(2)));
+		assertThat(revisions, is(Matchers.<Revision<Integer, Country>> iterableWithSize(2)));
 
 		Iterator<Revision<Integer, Country>> iterator = revisions.iterator();
 		Revision<Integer, Country> first = iterator.next();

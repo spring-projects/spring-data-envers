@@ -124,9 +124,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
-		return revisionNumbers.isEmpty() ?
-				new Revisions<N, T>(Collections.EMPTY_LIST) :
-				getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
+		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST) : getEntitiesForRevisions(
+				(List<N>) revisionNumbers, id, reader);
 	}
 
 	/*
@@ -205,15 +204,14 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id,
-			AuditReader reader) {
+	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader) {
 
 		Class<T> type = entityInformation.getJavaType();
 		Map<N, T> revisions = new HashMap<N, T>(revisionNumbers.size());
 
 		Class<?> revisionEntityClass = revisionEntityInformation.getRevisionEntityClass();
-		Map<Number, Object> revisionEntities = (Map<Number, Object>) reader
-				.findRevisions(revisionEntityClass, new HashSet<Number>(revisionNumbers));
+		Map<Number, Object> revisionEntities = (Map<Number, Object>) reader.findRevisions(revisionEntityClass,
+				new HashSet<Number>(revisionNumbers));
 
 		for (Number number : revisionNumbers) {
 			revisions.put((N) number, reader.find(type, id, number));
@@ -231,8 +229,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Revision<N, T> getEntityForRevision(N revisionNumber, ID id,
-			AuditReader reader) {
+	private Revision<N, T> getEntityForRevision(N revisionNumber, ID id, AuditReader reader) {
 
 		Class<?> type = revisionEntityInformation.getRevisionEntityClass();
 
