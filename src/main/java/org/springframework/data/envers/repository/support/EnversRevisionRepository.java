@@ -31,8 +31,8 @@ import java.io.Serializable;
  * @author Michael Igler
  */
 @NoRepositoryBean
-public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>>
-		extends RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
+public interface EnversRevisionRepository<T, ID extends Serializable, N extends Number & Comparable<N>> extends
+		RevisionRepository<T, ID, N>, JpaRepository<T, ID> {
 
 	/**
 	 * Returns the entity with the given ID in the given revision number.

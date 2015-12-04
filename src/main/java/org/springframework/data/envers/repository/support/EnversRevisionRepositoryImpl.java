@@ -48,8 +48,8 @@ import static org.hibernate.envers.internal.tools.EntityTools.getTargetClassIfPr
  * @author Philipp Huegelmeyer
  * @author Michael Igler
  */
-public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>>
-		extends SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
+public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends
+		SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
 	private final RevisionEntityInformation revisionEntityInformation;
@@ -79,7 +79,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.history.RevisionRepository#findLastChangeRevision(java.io.Serializable)
 	 */
-	@SuppressWarnings("unchecked") public Revision<N, T> findLastChangeRevision(ID id) {
+	@SuppressWarnings("unchecked")
+	public Revision<N, T> findLastChangeRevision(ID id) {
 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
@@ -103,7 +104,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * (non-Javadoc)
 	 * @see org.springframework.data.envers.repository.support.EnversRevisionRepository#findRevision(java.io.Serializable, java.lang.Number)
 	 */
-	@Override public Revision<N, T> findRevision(ID id, N revisionNumber) {
+	@Override
+	public Revision<N, T> findRevision(ID id, N revisionNumber) {
 
 		Assert.notNull(id, "Identifier must not be null!");
 		Assert.notNull(revisionNumber, "Revision number must not be null!");
@@ -115,7 +117,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable)
 	 */
-	@SuppressWarnings("unchecked") public Revisions<N, T> findRevisions(ID id) {
+	@SuppressWarnings("unchecked")
+	public Revisions<N, T> findRevisions(ID id) {
 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
@@ -130,7 +133,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.history.RevisionRepository#findRevisions(java.io.Serializable, org.springframework.data.domain.Pageable)
 	 */
-	@SuppressWarnings("unchecked") public Page<Revision<N, T>> findRevisions(ID id, Pageable pageable) {
+	@SuppressWarnings("unchecked")
+	public Page<Revision<N, T>> findRevisions(ID id, Pageable pageable) {
 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
@@ -200,7 +204,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @param reader
 	 * @return
 	 */
-	@SuppressWarnings("unchecked") private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id,
+	@SuppressWarnings("unchecked")
+	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id,
 			AuditReader reader) {
 
 		Class<T> type = entityInformation.getJavaType();
@@ -225,7 +230,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @param reader
 	 * @return
 	 */
-	@SuppressWarnings("unchecked") private Revision<N, T> getEntityForRevision(N revisionNumber, ID id,
+	@SuppressWarnings("unchecked")
+	private Revision<N, T> getEntityForRevision(N revisionNumber, ID id,
 			AuditReader reader) {
 
 		Class<?> type = revisionEntityInformation.getRevisionEntityClass();
