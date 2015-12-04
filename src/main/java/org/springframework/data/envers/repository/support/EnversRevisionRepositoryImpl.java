@@ -150,10 +150,27 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		AuditQuery auditQuery = reader.createQuery().forRevisionsOfEntity(cls, cls.getName(), false, true)
 				.addProjection(AuditEntity.revisionNumber()).add(AuditEntity.id().eq(id)).setFirstResult(pageable.getOffset())
 				.setMaxResults(pageable.getPageSize());
+		List<N> revisions = addSort(auditQuery, pageable).getResultList();
 
-		Revisions<N, T> revisions = getEntitiesForRevisions(addSort(auditQuery, pageable).getResultList(), id, reader);
+		// keep ordered list of revision numbers
+		final Map<N, Integer> orderMap = new HashMap<N, Integer>();
+		int order = -1;
+		for (N revision : revisions) {
+			orderMap.put(revision, ++order);
+		}
 
-		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
+		// load the actual revision entities
+		Revisions<N, T> wrongOrderedRevisions = getEntitiesForRevisions(revisions, id, reader);
+
+		// put the output back into the correct order based upon the revision number order map
+		List<Revision<N, T>> orderedRevisions = new ArrayList<Revision<N, T>>(wrongOrderedRevisions.getContent());
+		Collections.sort(orderedRevisions, new Comparator<Revision<N, T>>() {
+			@Override public int compare(Revision<N, T> o1, Revision<N, T> o2) {
+				return orderMap.get(o1.getRevisionNumber())
+						.compareTo(orderMap.get(o2.getRevisionNumber()));
+			}
+		});
+		return new PageImpl<Revision<N, T>>(orderedRevisions, pageable, revisionNumbers.size());
 	}
 
 	/**
