@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.history.AnnotationRevisionMetadata;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionMetadata;
+import org.springframework.data.history.RevisionSort;
 import org.springframework.data.history.Revisions;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -51,8 +52,8 @@ import org.springframework.util.Assert;
  * @author Philipp Huegelmeyer
  * @author Michael Igler
  */
-public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>> extends
-		SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
+public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>>
+		extends SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
 	private final RevisionEntityInformation revisionEntityInformation;
@@ -127,8 +128,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
-		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST) : getEntitiesForRevisions(
-				(List<N>) revisionNumbers, id, reader);
+		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST)
+				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
 	}
 
 	/*
@@ -141,9 +142,14 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<Number> revisionNumbers = reader.getRevisions(type, id);
+		boolean isDescending = RevisionSort.getRevisionDirection(pageable.getSort()).isDescending();
+
+		if (isDescending) {
+			Collections.reverse(revisionNumbers);
+		}
 
 		if (pageable.getOffset() > revisionNumbers.size()) {
-			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
+			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>>emptyList(), pageable, 0);
 		}
 
 		int upperBound = pageable.getOffset() + pageable.getPageSize();
@@ -151,6 +157,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 
 		List<? extends Number> subList = revisionNumbers.subList(pageable.getOffset(), upperBound);
 		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
+
+		revisions = isDescending ? revisions.reverse() : revisions;
 
 		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -35,6 +36,7 @@ import org.springframework.data.envers.sample.CountryRepository;
 import org.springframework.data.envers.sample.License;
 import org.springframework.data.envers.sample.LicenseRepository;
 import org.springframework.data.history.Revision;
+import org.springframework.data.history.RevisionSort;
 import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -117,7 +119,7 @@ public class RepositoryIntegrationTests {
 
 		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
 
-		assertThat(revisions, is(Matchers.<Revision<Integer, Country>> iterableWithSize(2)));
+		assertThat(revisions, is(Matchers.<Revision<Integer, Country>>iterableWithSize(2)));
 
 		Iterator<Revision<Integer, Country>> iterator = revisions.iterator();
 		Revision<Integer, Country> first = iterator.next();
@@ -125,5 +127,29 @@ public class RepositoryIntegrationTests {
 
 		assertThat(countryRepository.findRevision(de.id, first.getRevisionNumber()).getEntity().name, is("Deutschland"));
 		assertThat(countryRepository.findRevision(de.id, second.getRevisionNumber()).getEntity().name, is("Germany"));
+	}
+
+	/**
+	 * @see #55
+	 */
+	@Test
+	public void considersRevisionNumberSortOrder() {
+
+		Country de = new Country();
+		de.code = "de";
+		de.name = "Deutschland";
+
+		countryRepository.save(de);
+
+		de.name = "Germany";
+
+		countryRepository.save(de);
+
+		List<Revision<Integer, Country>> content = countryRepository
+				.findRevisions(de.id, new PageRequest(0, 10, RevisionSort.desc())).getContent();
+
+		assertThat(content, hasSize(2));
+		assertThat(content.get(0).getRevisionNumber(), is(2));
+		assertThat(content.get(1).getRevisionNumber(), is(1));
 	}
 }
