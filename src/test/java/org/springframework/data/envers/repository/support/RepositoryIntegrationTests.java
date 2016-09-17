@@ -149,7 +149,6 @@ public class RepositoryIntegrationTests {
 				.findRevisions(de.id, new PageRequest(0, 10, RevisionSort.desc())).getContent();
 
 		assertThat(content, hasSize(2));
-		assertThat(content.get(0).getRevisionNumber(), is(2));
-		assertThat(content.get(1).getRevisionNumber(), is(1));
+		assertThat(content.get(0).getRevisionNumber(), is(greaterThan(content.get(1).getRevisionNumber())));
 	}
 }
