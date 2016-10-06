@@ -1,0 +1,9 @@
+#*
+.#*
+*~
+_site
+.idea
+*.sw[op]
+.project
+sample-pages
+target
