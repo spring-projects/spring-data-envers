@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,19 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
  * @author Oliver Gierke
  * @author Michael Igler
  */
-public class EnversRevisionRepositoryFactoryBean extends
-		JpaRepositoryFactoryBean<EnversRevisionRepository<Object, Serializable, Long>, Object, Serializable> {
+public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S, ID, N>, S, ID extends Serializable, N extends Number & Comparable<N>>
+		extends JpaRepositoryFactoryBean<T, S, ID> {
 
 	private Class<?> revisionEntityClass;
+
+	/**
+	 * Creates a new {@link EnversRevisionRepositoryFactoryBean} for the given repository interface.
+	 * 
+	 * @param repositoryInterface must not be {@literal null}.
+	 */
+	public EnversRevisionRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
+		super(repositoryInterface);
+	}
 
 	/**
 	 * Configures the revision entity class. Will default to {@link DefaultRevisionEntity}.
@@ -57,7 +66,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 	 */
 	@Override
 	protected RepositoryFactorySupport createRepositoryFactory(EntityManager entityManager) {
-		return new RevisionRepositoryFactory(entityManager, revisionEntityClass);
+		return new RevisionRepositoryFactory<T, ID, N>(entityManager, revisionEntityClass);
 	}
 
 	/**
@@ -65,7 +74,8 @@ public class EnversRevisionRepositoryFactoryBean extends
 	 * 
 	 * @author Oliver Gierke
 	 */
-	private static class RevisionRepositoryFactory<T, ID extends Serializable, N extends Number & Comparable<N>> extends JpaRepositoryFactory {
+	private static class RevisionRepositoryFactory<T, ID extends Serializable, N extends Number & Comparable<N>>
+			extends JpaRepositoryFactory {
 
 		private final RevisionEntityInformation revisionEntityInformation;
 		private final EntityManager entityManager;
@@ -81,8 +91,8 @@ public class EnversRevisionRepositoryFactoryBean extends
 			super(entityManager);
 			this.entityManager = entityManager;
 			revisionEntityClass = revisionEntityClass == null ? DefaultRevisionEntity.class : revisionEntityClass;
-			this.revisionEntityInformation = DefaultRevisionEntity.class.equals(revisionEntityClass) ? new DefaultRevisionEntityInformation()
-					: new ReflectionRevisionEntityInformation(revisionEntityClass);
+			this.revisionEntityInformation = DefaultRevisionEntity.class.equals(revisionEntityClass)
+					? new DefaultRevisionEntityInformation() : new ReflectionRevisionEntityInformation(revisionEntityClass);
 		}
 
 		/* 
@@ -93,9 +103,10 @@ public class EnversRevisionRepositoryFactoryBean extends
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		protected EnversRevisionRepositoryImpl getTargetRepository(RepositoryInformation information) {
 
-			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(information.getDomainType());
+			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(
+					information.getDomainType());
 
-			return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation , revisionEntityInformation, entityManager);
+			return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation, revisionEntityInformation, entityManager);
 		}
 
 		/*
@@ -112,6 +123,7 @@ public class EnversRevisionRepositoryFactoryBean extends
 		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, java.lang.Object)
 		 */
 		@Override
+		@SuppressWarnings("hiding")
 		public <T> T getRepository(Class<T> repositoryInterface, Object customImplementation) {
 
 			if (RevisionRepository.class.isAssignableFrom(repositoryInterface)) {
@@ -123,8 +135,8 @@ public class EnversRevisionRepositoryFactoryBean extends
 				if (!revisionEntityInformation.getRevisionNumberType().equals(revisionNumberType)) {
 					throw new IllegalStateException(String.format(
 							"Configured a revision entity type of %s with a revision type of %s "
-									+ "but the repository interface is typed to a revision type of %s!", repositoryInterface,
-							revisionEntityInformation.getRevisionNumberType(), revisionNumberType));
+									+ "but the repository interface is typed to a revision type of %s!",
+							repositoryInterface, revisionEntityInformation.getRevisionNumberType(), revisionNumberType));
 				}
 			}
 

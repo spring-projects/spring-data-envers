@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.springframework.data.envers.sample;
 
-import org.springframework.data.envers.repository.support.EnversRevisionRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.history.RevisionRepository;
 
@@ -24,6 +23,6 @@ import org.springframework.data.repository.history.RevisionRepository;
  * 
  * @author Oliver Gierke
  */
-public interface CountryRepository extends EnversRevisionRepository<Country, Long, Integer>, JpaRepository<Country, Long> {
+public interface CountryRepository extends RevisionRepository<Country, Long, Integer>, JpaRepository<Country, Long> {
 
 }
