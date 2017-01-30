@@ -1,0 +1,31 @@
+= Spring Data Envers - Reference Documentation
+Oliver Gierke;
+:revnumber: {version}
+:revdate: {localdate}
+:toc:
+:toc-placement!:
+:spring-data-commons-docs: ../../../../spring-data-commons/src/main/asciidoc
+
+(C) 2008-2015 The original authors.
+
+NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
+
+toc::[]
+
+include::{spring-data-commons-docs}/dependencies.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repositories.adoc[leveloffset=+1]
+
+
+[[reference]]
+= Reference Documentation
+
+== TODO
+
+
+[[appendix]]
+= Appendix
+
+:numbered!:
+include::{spring-data-commons-docs}/repository-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-populator-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-query-keywords-reference.adoc[leveloffset=+1]

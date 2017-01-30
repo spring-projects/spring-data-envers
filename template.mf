@@ -1,0 +1,15 @@
+Bundle-SymbolicName: org.springframework.data.envers
+Bundle-Name: ${project.name}
+Bundle-Vendor: Pivotal Software, Inc.
+Bundle-Version: ${project.version}
+Bundle-ManifestVersion: 2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Template:
+ com.querydsl.*;version="${querydsl:[=.=.=,+1.0.0)}";resolution:=optional,
+ javax.persistence.*;version="[2.0.0,3.0.0)",
+ org.hibernate.envers.*;version="${hibernate.envers:[=.=.=,+1.0.0)}",
+ org.joda.time.*;version="${jodatime:[=.=.=,+1.0.0)}",
+ org.springframework.*;version="${spring:[=.=.=,+1.0.0)}",
+ org.springframework.data.*;version="${springdata.commons:[=.=.=,+1.0.0)}",
+ org.springframework.data.jpa.*;version="${springdata.jpa:[=.=.=,+1.0.0)}"
+DynamicImport-Package: *
