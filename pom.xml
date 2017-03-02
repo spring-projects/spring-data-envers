@@ -4,7 +4,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-envers</artifactId>
-	<version>1.0.8.RELEASE</version>
+	<version>1.0.9.BUILD-SNAPSHOT</version>
 
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
