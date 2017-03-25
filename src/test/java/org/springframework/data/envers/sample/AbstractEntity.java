@@ -15,38 +15,15 @@
  */
 package org.springframework.data.envers.sample;
 
+import lombok.EqualsAndHashCode;
+
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import org.springframework.util.ObjectUtils;
-
 @MappedSuperclass
+@EqualsAndHashCode
 abstract class AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	public Long id;
-
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-
-		if (this == obj) {
-			return true;
-		}
-
-		if (!(obj instanceof AbstractEntity)) {
-			return false;
-		}
-
-		AbstractEntity that = (AbstractEntity) obj;
-
-		return ObjectUtils.nullSafeEquals(this.id, that.id);
-	}
-
+	public @Id @GeneratedValue Long id;
 }

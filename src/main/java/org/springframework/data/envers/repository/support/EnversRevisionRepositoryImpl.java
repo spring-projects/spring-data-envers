@@ -16,13 +16,12 @@
 package org.springframework.data.envers.repository.support;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -42,7 +41,10 @@ import org.springframework.data.history.Revisions;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.EntityInformation;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
+import org.springframework.data.util.Pair;
+import org.springframework.data.util.StreamUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -53,7 +55,7 @@ import org.springframework.util.Assert;
  * @author Michael Igler
  */
 public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>>
-		extends SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
+		extends SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
 	private final RevisionEntityInformation revisionEntityInformation;
@@ -72,7 +74,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 
 		super(entityInformation, entityManager);
 
-		Assert.notNull(revisionEntityInformation);
+		Assert.notNull(revisionEntityInformation, "RevisionEntityInformation must not be null!");
 
 		this.entityInformation = entityInformation;
 		this.revisionEntityInformation = revisionEntityInformation;
@@ -84,7 +86,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @see org.springframework.data.repository.history.RevisionRepository#findLastChangeRevision(java.io.Serializable)
 	 */
 	@SuppressWarnings("unchecked")
-	public Revision<N, T> findLastChangeRevision(ID id) {
+	public Optional<Revision<N, T>> findLastChangeRevision(ID id) {
 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
@@ -92,7 +94,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		List<Number> revisions = reader.getRevisions(type, id);
 
 		if (revisions.isEmpty()) {
-			return null;
+			return Optional.empty();
 		}
 
 		N latestRevision = (N) revisions.get(revisions.size() - 1);
@@ -101,7 +103,8 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 
 		Object revisionEntity = reader.findRevision(revisionEntityClass, latestRevision);
 		RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntity);
-		return new Revision<N, T>(metadata, reader.find(type, id, latestRevision));
+
+		return Optional.of(Revision.of(metadata, reader.find(type, id, latestRevision)));
 	}
 
 	/*
@@ -109,7 +112,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @see org.springframework.data.envers.repository.support.EnversRevisionRepository#findRevision(java.io.Serializable, java.lang.Number)
 	 */
 	@Override
-	public Revision<N, T> findRevision(ID id, N revisionNumber) {
+	public Optional<Revision<N, T>> findRevision(ID id, N revisionNumber) {
 
 		Assert.notNull(id, "Identifier must not be null!");
 		Assert.notNull(revisionNumber, "Revision number must not be null!");
@@ -128,7 +131,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
-		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST)
+		return revisionNumbers.isEmpty() ? Revisions.none()
 				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
 	}
 
@@ -149,13 +152,13 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		}
 
 		if (pageable.getOffset() > revisionNumbers.size()) {
-			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>>emptyList(), pageable, 0);
+			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
 		}
 
-		int upperBound = pageable.getOffset() + pageable.getPageSize();
+		long upperBound = pageable.getOffset() + pageable.getPageSize();
 		upperBound = upperBound > revisionNumbers.size() ? revisionNumbers.size() : upperBound;
 
-		List<? extends Number> subList = revisionNumbers.subList(pageable.getOffset(), upperBound);
+		List<? extends Number> subList = revisionNumbers.subList(toInt(pageable.getOffset()), toInt(upperBound));
 		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
 
 		revisions = isDescending ? revisions.reverse() : revisions;
@@ -185,7 +188,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 			revisions.put((N) number, reader.find(type, id, number));
 		}
 
-		return new Revisions<N, T>(toRevisions(revisions, revisionEntities));
+		return Revisions.of(toRevisions(revisions, revisionEntities));
 	}
 
 	/**
@@ -197,31 +200,24 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Revision<N, T> getEntityForRevision(N revisionNumber, ID id, AuditReader reader) {
+	private Optional<Revision<N, T>> getEntityForRevision(N revisionNumber, ID id, AuditReader reader) {
 
 		Class<?> type = revisionEntityInformation.getRevisionEntityClass();
 
 		T revision = (T) reader.findRevision(type, revisionNumber);
-		Object entity = reader.find(entityInformation.getJavaType(), id, revisionNumber);
+		Optional<Object> entity = Optional.ofNullable(reader.find(entityInformation.getJavaType(), id, revisionNumber));
 
-		return new Revision<N, T>((RevisionMetadata<N>) getRevisionMetadata(revision), (T) entity);
+		return entity.map(it -> Revision.of((RevisionMetadata<N>) getRevisionMetadata(revision), (T) it));
 	}
 
 	@SuppressWarnings("unchecked")
 	private List<Revision<N, T>> toRevisions(Map<N, T> source, Map<Number, Object> revisionEntities) {
 
-		List<Revision<N, T>> result = new ArrayList<Revision<N, T>>();
-
-		for (Entry<N, T> revision : source.entrySet()) {
-
-			N revisionNumber = revision.getKey();
-			T entity = revision.getValue();
-			RevisionMetadata<N> metadata = (RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(revisionNumber));
-			result.add(new Revision<N, T>(metadata, entity));
-		}
-
-		Collections.sort(result);
-		return Collections.unmodifiableList(result);
+		return source.entrySet().stream()//
+				.map(entry -> Pair.of(revisionEntities.get(entry.getKey()), entry.getValue()))//
+				.map(pair -> Revision.of((RevisionMetadata<N>) getRevisionMetadata(pair.getFirst()), pair.getSecond()))//
+				.sorted()//
+				.collect(StreamUtils.toUnmodifiableList());
 	}
 
 	/**
@@ -231,10 +227,18 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 	 * @return
 	 */
 	private RevisionMetadata<?> getRevisionMetadata(Object object) {
-		if (object instanceof DefaultRevisionEntity) {
-			return new DefaultRevisionMetadata((DefaultRevisionEntity) object);
-		} else {
-			return new AnnotationRevisionMetadata<N>(object, RevisionNumber.class, RevisionTimestamp.class);
+
+		return object instanceof DefaultRevisionEntity //
+				? new DefaultRevisionMetadata((DefaultRevisionEntity) object) //
+				: new AnnotationRevisionMetadata<N>(object, RevisionNumber.class, RevisionTimestamp.class);
+	}
+
+	private static int toInt(long value) {
+
+		if (value > Integer.MAX_VALUE) {
+			throw new IllegalStateException(String.format("%s can't be mapped to an integer, too large!", value));
 		}
+
+		return Long.valueOf(value).intValue();
 	}
 }

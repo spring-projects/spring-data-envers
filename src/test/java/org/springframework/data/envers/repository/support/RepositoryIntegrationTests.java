@@ -15,15 +15,13 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Optional;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,17 +86,19 @@ public class RepositoryIntegrationTests {
 
 		countryRepository.save(de);
 
-		Revision<Integer, License> revision = licenseRepository.findLastChangeRevision(license.id);
-		assertThat(revision, is(notNullValue()));
+		Optional<Revision<Integer, License>> revision = licenseRepository.findLastChangeRevision(license.id);
 
-		Page<Revision<Integer, License>> revisions = licenseRepository.findRevisions(license.id, new PageRequest(0, 10));
-		Revisions<Integer, License> wrapper = new Revisions<Integer, License>(revisions.getContent());
-		assertThat(wrapper.getLatestRevision(), is(revision));
+		assertThat(revision).hasValueSatisfying(it -> {
+
+			Page<Revision<Integer, License>> page = licenseRepository.findRevisions(license.id, PageRequest.of(0, 10));
+			Revisions<Integer, License> revisions = Revisions.of(page.getContent());
+			assertThat(revisions.getLatestRevision()).isEqualTo(it);
+		});
 	}
 
 	@Test
 	public void returnsEmptyRevisionsForUnrevisionedEntity() {
-		assertThat(countryRepository.findRevisions(100L).getContent(), is(hasSize(0)));
+		assertThat(countryRepository.findRevisions(100L)).isEmpty();
 	}
 
 	/**
@@ -119,14 +119,19 @@ public class RepositoryIntegrationTests {
 
 		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
 
-		assertThat(revisions, is(Matchers.<Revision<Integer, Country>>iterableWithSize(2)));
+		assertThat(revisions).hasSize(2);
 
 		Iterator<Revision<Integer, Country>> iterator = revisions.iterator();
 		Revision<Integer, Country> first = iterator.next();
 		Revision<Integer, Country> second = iterator.next();
 
-		assertThat(countryRepository.findRevision(de.id, first.getRevisionNumber()).getEntity().name, is("Deutschland"));
-		assertThat(countryRepository.findRevision(de.id, second.getRevisionNumber()).getEntity().name, is("Germany"));
+		assertThat(countryRepository.findRevision(de.id, first.getRequiredRevisionNumber())).hasValueSatisfying(it -> {
+			assertThat(it.getEntity().name).isEqualTo("Deutschland");
+		});
+
+		assertThat(countryRepository.findRevision(de.id, second.getRequiredRevisionNumber())).hasValueSatisfying(it -> {
+			assertThat(it.getEntity().name).isEqualTo("Germany");
+		});
 	}
 
 	/**
@@ -145,10 +150,11 @@ public class RepositoryIntegrationTests {
 
 		countryRepository.save(de);
 
-		List<Revision<Integer, Country>> content = countryRepository
-				.findRevisions(de.id, new PageRequest(0, 10, RevisionSort.desc())).getContent();
+		Page<Revision<Integer, Country>> page = countryRepository.findRevisions(de.id,
+				PageRequest.of(0, 10, RevisionSort.desc()));
 
-		assertThat(content, hasSize(2));
-		assertThat(content.get(0).getRevisionNumber(), is(greaterThan(content.get(1).getRevisionNumber())));
+		assertThat(page).hasSize(2);
+		assertThat(page.getContent().get(0).getRequiredRevisionNumber())
+				.isGreaterThan(page.getContent().get(1).getRequiredRevisionNumber());
 	}
 }

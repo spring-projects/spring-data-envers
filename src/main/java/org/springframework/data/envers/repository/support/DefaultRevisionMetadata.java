@@ -15,10 +15,17 @@
  */
 package org.springframework.data.envers.repository.support;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Value;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.hibernate.envers.DefaultRevisionEntity;
-import org.joda.time.DateTime;
 import org.springframework.data.history.RevisionMetadata;
-import org.springframework.util.Assert;
 
 /**
  * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}.
@@ -26,35 +33,25 @@ import org.springframework.util.Assert;
  * @author Oliver Gierke
  * @author Philip Huegelmeyer
  */
+@Value
 public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 
-	private final DefaultRevisionEntity entity;
-
-	/**
-	 * Creates a new {@link DefaultRevisionMetadata}.
-	 * 
-	 * @param entity must not be {@literal null}.
-	 */
-	public DefaultRevisionMetadata(DefaultRevisionEntity entity) {
-
-		Assert.notNull(entity);
-		this.entity = entity;
-	}
+	private final @NonNull @Getter(AccessLevel.NONE) DefaultRevisionEntity entity;
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
 	 */
-	public Integer getRevisionNumber() {
-		return entity.getId();
+	public Optional<Integer> getRevisionNumber() {
+		return Optional.ofNullable(entity.getId());
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
 	 */
-	public DateTime getRevisionDate() {
-		return new DateTime(entity.getTimestamp());
+	public Optional<LocalDateTime> getRevisionDate() {
+		return Optional.of(LocalDateTime.from(Instant.ofEpochMilli(entity.getTimestamp())));
 	}
 
 	/*

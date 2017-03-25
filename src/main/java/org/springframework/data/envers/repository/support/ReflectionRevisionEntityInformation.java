@@ -15,6 +15,8 @@
  */
 package org.springframework.data.envers.repository.support;
 
+import lombok.Getter;
+
 import org.hibernate.envers.RevisionNumber;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 import org.springframework.data.util.AnnotationDetectionFieldCallback;
@@ -27,6 +29,7 @@ import org.springframework.util.ReflectionUtils;
  * 
  * @author Oliver Gierke
  */
+@Getter
 public class ReflectionRevisionEntityInformation implements RevisionEntityInformation {
 
 	private final Class<?> revisionEntityClass;
@@ -39,22 +42,14 @@ public class ReflectionRevisionEntityInformation implements RevisionEntityInform
 	 */
 	public ReflectionRevisionEntityInformation(Class<?> revisionEntityClass) {
 
-		Assert.notNull(revisionEntityClass);
+		Assert.notNull(revisionEntityClass, "Revision entity type must not be null!");
 
 		AnnotationDetectionFieldCallback fieldCallback = new AnnotationDetectionFieldCallback(RevisionNumber.class);
 		ReflectionUtils.doWithFields(revisionEntityClass, fieldCallback);
 
-		this.revisionNumberType = fieldCallback.getType();
+		this.revisionNumberType = fieldCallback.getRequiredType();
 		this.revisionEntityClass = revisionEntityClass;
 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.history.support.RevisionEntityInformation#getRevisionNumberType()
-	 */
-	public Class<?> getRevisionNumberType() {
-		return revisionNumberType;
 	}
 
 	/*
@@ -63,13 +58,5 @@ public class ReflectionRevisionEntityInformation implements RevisionEntityInform
 	 */
 	public boolean isDefaultRevisionEntity() {
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.history.support.RevisionEntityInformation#getRevisionEntityClass()
-	 */
-	public Class<?> getRevisionEntityClass() {
-		return revisionEntityClass;
 	}
 }
