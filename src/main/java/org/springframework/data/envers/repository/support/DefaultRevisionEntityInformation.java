@@ -23,7 +23,7 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
  * 
  * @author Oliver Gierke
  */
-class DefaultRevisionEntityInformation implements RevisionEntityInformation {
+public class DefaultRevisionEntityInformation implements RevisionEntityInformation {
 
 	/*
 	 * (non-Javadoc)

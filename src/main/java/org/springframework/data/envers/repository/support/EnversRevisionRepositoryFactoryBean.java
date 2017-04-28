@@ -40,7 +40,7 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
 public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S, ID, N>, S, ID extends Serializable, N extends Number & Comparable<N>>
 		extends JpaRepositoryFactoryBean<T, S, ID> {
 
-	private Class<?> revisionEntityClass;
+	protected Class<?> revisionEntityClass;
 
 	/**
 	 * Creates a new {@link EnversRevisionRepositoryFactoryBean} for the given repository interface.
@@ -74,7 +74,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 	 * 
 	 * @author Oliver Gierke
 	 */
-	private static class RevisionRepositoryFactory<T, ID extends Serializable, N extends Number & Comparable<N>>
+	public static class RevisionRepositoryFactory<T, ID extends Serializable, N extends Number & Comparable<N>>
 			extends JpaRepositoryFactory {
 
 		private final RevisionEntityInformation revisionEntityInformation;
