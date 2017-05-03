@@ -15,8 +15,6 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import java.io.Serializable;
-
 import javax.persistence.EntityManager;
 
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -37,7 +35,7 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
  * @author Oliver Gierke
  * @author Michael Igler
  */
-public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S, ID, N>, S, ID extends Serializable, N extends Number & Comparable<N>>
+public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S, ID, N>, S, ID, N extends Number & Comparable<N>>
 		extends JpaRepositoryFactoryBean<T, S, ID> {
 
 	private Class<?> revisionEntityClass;
@@ -74,8 +72,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 	 * 
 	 * @author Oliver Gierke
 	 */
-	private static class RevisionRepositoryFactory<T, ID extends Serializable, N extends Number & Comparable<N>>
-			extends JpaRepositoryFactory {
+	private static class RevisionRepositoryFactory<T, ID, N extends Number & Comparable<N>> extends JpaRepositoryFactory {
 
 		private final RevisionEntityInformation revisionEntityInformation;
 		private final EntityManager entityManager;
@@ -103,7 +100,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		protected EnversRevisionRepositoryImpl getTargetRepository(RepositoryInformation information) {
 
-			JpaEntityInformation<T, Serializable> entityInformation = (JpaEntityInformation<T, Serializable>) getEntityInformation(
+			JpaEntityInformation<T, Object> entityInformation = (JpaEntityInformation<T, Object>) getEntityInformation(
 					information.getDomainType());
 
 			return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation, revisionEntityInformation, entityManager);

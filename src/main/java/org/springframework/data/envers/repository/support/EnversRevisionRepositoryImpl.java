@@ -15,7 +15,6 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,8 +53,8 @@ import org.springframework.util.Assert;
  * @author Philipp Huegelmeyer
  * @author Michael Igler
  */
-public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>>
-		extends SimpleJpaRepository<T, ID> implements RevisionRepository<T, ID, N> {
+public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID>
+		implements RevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
 	private final RevisionEntityInformation revisionEntityInformation;
