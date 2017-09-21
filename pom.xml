@@ -45,6 +45,7 @@
 		<springdata.commons>2.0.0.BUILD-SNAPSHOT</springdata.commons>
 		<springdata.jpa>2.0.0.BUILD-SNAPSHOT</springdata.jpa>
 		<hibernate.envers>4.3.11</hibernate.envers>
+		<java-module-name>spring.data.envers</java-module-name>
 	</properties>
 
 	<dependencies>
