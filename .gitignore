@@ -3,3 +3,4 @@
 .springBeans
 .settings/
 target/
+.idea/
