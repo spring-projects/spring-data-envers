@@ -15,6 +15,8 @@
  */
 package org.springframework.data.envers.repository.support;
 
+import java.util.Optional;
+
 import javax.persistence.EntityManager;
 
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -25,6 +27,7 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
+import org.springframework.data.repository.core.support.RepositoryComposition.RepositoryFragments;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
@@ -75,7 +78,6 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 	private static class RevisionRepositoryFactory<T, ID, N extends Number & Comparable<N>> extends JpaRepositoryFactory {
 
 		private final RevisionEntityInformation revisionEntityInformation;
-		private final EntityManager entityManager;
 
 		/**
 		 * Creates a new {@link RevisionRepositoryFactory} using the given {@link EntityManager} and revision entity class.
@@ -86,10 +88,11 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 		public RevisionRepositoryFactory(EntityManager entityManager, Class<?> revisionEntityClass) {
 
 			super(entityManager);
-			this.entityManager = entityManager;
-			revisionEntityClass = revisionEntityClass == null ? DefaultRevisionEntity.class : revisionEntityClass;
-			this.revisionEntityInformation = DefaultRevisionEntity.class.equals(revisionEntityClass)
-					? new DefaultRevisionEntityInformation() : new ReflectionRevisionEntityInformation(revisionEntityClass);
+
+			this.revisionEntityInformation = Optional.ofNullable(revisionEntityClass) //
+					.filter(it -> !it.equals(DefaultRevisionEntity.class))//
+					.<RevisionEntityInformation> map(ReflectionRevisionEntityInformation::new) //
+					.orElseGet(DefaultRevisionEntityInformation::new);
 		}
 
 		/* 
@@ -118,11 +121,11 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 
 		/* 
 		 * (non-Javadoc)
-		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, java.lang.Object)
+		 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getRepository(java.lang.Class, org.springframework.data.repository.core.support.RepositoryComposition.RepositoryFragments)
 		 */
 		@Override
 		@SuppressWarnings("hiding")
-		public <T> T getRepository(Class<T> repositoryInterface, Object customImplementation) {
+		public <T> T getRepository(Class<T> repositoryInterface, RepositoryFragments fragments) {
 
 			if (RevisionRepository.class.isAssignableFrom(repositoryInterface)) {
 
@@ -138,7 +141,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 				}
 			}
 
-			return super.getRepository(repositoryInterface, customImplementation);
+			return super.getRepository(repositoryInterface, fragments);
 		}
 	}
 }
