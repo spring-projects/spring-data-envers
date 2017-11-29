@@ -94,13 +94,14 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 
 		/* 
 		 * (non-Javadoc)
-		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata, javax.persistence.EntityManager)
+		 * @see org.springframework.data.jpa.repository.support.JpaRepositoryFactory#getTargetRepository(org.springframework.data.repository.core.RepositoryInformation, javax.persistence.EntityManager)
 		 */
 		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected EnversRevisionRepositoryImpl getTargetRepository(RepositoryInformation information) {
+		@SuppressWarnings("unchecked")
+		protected EnversRevisionRepositoryImpl<?, ?, ?> getTargetRepository(RepositoryInformation information,
+				EntityManager entityManager) {
 
-			JpaEntityInformation<T, Object> entityInformation = (JpaEntityInformation<T, Object>) getEntityInformation(
+			JpaEntityInformation<T, ?> entityInformation = (JpaEntityInformation<T, ?>) getEntityInformation(
 					information.getDomainType());
 
 			return new EnversRevisionRepositoryImpl<T, ID, N>(entityInformation, revisionEntityInformation, entityManager);
