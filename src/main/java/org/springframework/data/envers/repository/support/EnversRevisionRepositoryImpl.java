@@ -52,6 +52,7 @@ import org.springframework.util.Assert;
  * @author Oliver Gierke
  * @author Philipp Huegelmeyer
  * @author Michael Igler
+ * @author Jens Schauder
  */
 public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID>
 		implements RevisionRepository<T, ID, N> {
@@ -215,8 +216,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	private List<Revision<N, T>> toRevisions(Map<N, T> source, Map<Number, Object> revisionEntities) {
 
 		return source.entrySet().stream()//
-				.map(entry -> Pair.of(revisionEntities.get(entry.getKey()), entry.getValue()))//
-				.map(pair -> Revision.of((RevisionMetadata<N>) getRevisionMetadata(pair.getFirst()), pair.getSecond()))//
+				.map(entry -> Revision.of((RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(entry.getKey())), entry.getValue()))//
 				.sorted()//
 				.collect(StreamUtils.toUnmodifiableList());
 	}
