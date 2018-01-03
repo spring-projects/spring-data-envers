@@ -17,15 +17,18 @@ package org.springframework.data.envers.sample;
 
 import javax.persistence.Entity;
 
+import lombok.ToString;
 import org.hibernate.envers.Audited;
 
 /**
  * Sample domain class.
  * 
  * @author Oliver Gierke
+ * @author Jens Schauder
  */
 @Audited
 @Entity
+@ToString
 public class Country extends AbstractEntity {
 
 	public String code;

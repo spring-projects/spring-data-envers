@@ -42,7 +42,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
-import org.springframework.data.util.Pair;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.util.Assert;
 
@@ -133,7 +132,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
 		return revisionNumbers.isEmpty() ? Revisions.none()
-				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader, true);
+				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
 	}
 
 	/*
@@ -160,7 +159,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		upperBound = upperBound > revisionNumbers.size() ? revisionNumbers.size() : upperBound;
 
 		List<? extends Number> subList = revisionNumbers.subList(toInt(pageable.getOffset()), toInt(upperBound));
-		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader, true);
+		Revisions<N, T> revisions = getEntitiesForRevisions((List<N>) subList, id, reader);
 
 		revisions = isDescending ? revisions.reverse() : revisions;
 
@@ -176,8 +175,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader,
-			boolean includeDeletions) {
+	private Revisions<N, T> getEntitiesForRevisions(List<N> revisionNumbers, ID id, AuditReader reader) {
 
 		Class<T> type = entityInformation.getJavaType();
 		Map<N, T> revisions = new HashMap<N, T>(revisionNumbers.size());
@@ -187,7 +185,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 				new HashSet<Number>(revisionNumbers));
 
 		for (Number number : revisionNumbers) {
-			revisions.put((N) number, reader.find(type, type.getName(), id, number, includeDeletions));
+			revisions.put((N) number, reader.find(type, type.getName(), id, number, true));
 		}
 
 		return Revisions.of(toRevisions(revisions, revisionEntities));
@@ -215,9 +213,11 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	@SuppressWarnings("unchecked")
 	private List<Revision<N, T>> toRevisions(Map<N, T> source, Map<Number, Object> revisionEntities) {
 
-		return source.entrySet().stream()//
-				.map(entry -> Revision.of((RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(entry.getKey())), entry.getValue()))//
-				.sorted()//
+		return source.entrySet().stream() //
+				.map(entry -> Revision.of( //
+						(RevisionMetadata<N>) getRevisionMetadata(revisionEntities.get(entry.getKey())), //
+						entry.getValue())) //
+				.sorted() //
 				.collect(StreamUtils.toUnmodifiableList());
 	}
 
