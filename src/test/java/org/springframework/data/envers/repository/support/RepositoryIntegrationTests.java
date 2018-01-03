@@ -41,15 +41,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Integration tests for repositories.
- * 
+ *
  * @author Oliver Gierke
+ * @author Jens Schauder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)
 public class RepositoryIntegrationTests {
 
-	@Autowired LicenseRepository licenseRepository;
-	@Autowired CountryRepository countryRepository;
+	@Autowired
+	LicenseRepository licenseRepository;
+	@Autowired
+	CountryRepository countryRepository;
 
 	@Before
 	public void setUp() {
@@ -156,5 +159,28 @@ public class RepositoryIntegrationTests {
 		assertThat(page).hasSize(2);
 		assertThat(page.getContent().get(0).getRequiredRevisionNumber())
 				.isGreaterThan(page.getContent().get(1).getRequiredRevisionNumber());
+	}
+
+	/**
+	 * @see #21
+	 */
+	@Test
+	public void findsDeletedRevisions() {
+
+		Country de = new Country();
+		de.code = "de";
+		de.name = "Deutschland";
+
+		countryRepository.save(de);
+
+		countryRepository.delete(de);
+
+		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
+
+		assertThat(revisions).hasSize(2);
+		assertThat(revisions.getLatestRevision().getEntity()) //
+				.isNotNull() //
+				.extracting(c -> c.name, c -> c.code) //
+				.containsExactly(null, null);
 	}
 }
