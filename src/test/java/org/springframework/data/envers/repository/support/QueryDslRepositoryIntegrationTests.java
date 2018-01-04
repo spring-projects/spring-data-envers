@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import org.hamcrest.Matchers;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.Iterator;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,30 +32,25 @@ import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Iterator;
-import java.util.Optional;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 /**
- * Integration tests for repositories with QueryDsl support. They make sure that methods provided by both
- * {@link EnversRevisionRepository} and {@link org.springframework.data.querydsl.QueryDslPredicateExecutor} are working.
+ * Integration tests for repositories with Querydsl support. They make sure that methods provided by both
+ * {@link org.springframework.data.repository.history.RevisionRepository} and {@link org.springframework.data.querydsl.QuerydslPredicateExecutor} are working.
  *
  * @author Dmytro Iaroslavskyi
+ * @author Jens Schauder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)
 public class QueryDslRepositoryIntegrationTests {
 
-	@Autowired CountryQueryDslRepository countryRepository;
+	@Autowired
+	CountryQueryDslRepository countryRepository;
 
 	@Before
 	public void setUp() {
 		countryRepository.deleteAll();
 	}
-	
+
 	@Test
 	public void testWithQueryDsl() {
 
@@ -64,9 +62,8 @@ public class QueryDslRepositoryIntegrationTests {
 
 		Country found = countryRepository.findOne(QCountry.country.name.eq("Deutschland")).get();
 
-		assertThat(found, is(notNullValue()));
-		assertThat(found.id, is(de.id));
-
+		assertThat(found).isNotNull();
+		assertThat(found.id).isEqualTo(de.id);
 	}
 
 	@Test
@@ -84,15 +81,16 @@ public class QueryDslRepositoryIntegrationTests {
 
 		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
 
-		assertThat(revisions, is(Matchers.<Revision<Integer, Country>>iterableWithSize(2)));
+		assertThat(revisions).hasSize(2);
 
 		Iterator<Revision<Integer, Country>> iterator = revisions.iterator();
-		Revision<Integer, Country> first = iterator.next();
-		Revision<Integer, Country> second = iterator.next();
 
-		assertThat(countryRepository.findRevision(de.id, first.getRevisionNumber().get()).get().getEntity().name, is("Deutschland"));
-		assertThat(countryRepository.findRevision(de.id, second.getRevisionNumber().get()).get().getEntity().name, is("Germany"));
+		Integer firstRevisionNumber = iterator.next().getRevisionNumber().get();
+		Integer secondRevisionNumber = iterator.next().getRevisionNumber().get();
 
+		assertThat(countryRepository.findRevision(de.id, firstRevisionNumber).get().getEntity().name)
+				.isEqualTo("Deutschland");
+		assertThat(countryRepository.findRevision(de.id, secondRevisionNumber).get().getEntity().name).isEqualTo("Germany");
 	}
 
 }
