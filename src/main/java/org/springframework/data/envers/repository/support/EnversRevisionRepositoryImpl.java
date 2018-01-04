@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,11 @@ import org.springframework.data.history.RevisionMetadata;
 import org.springframework.data.history.RevisionSort;
 import org.springframework.data.history.Revisions;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 import org.springframework.data.util.StreamUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 /**
@@ -53,7 +53,8 @@ import org.springframework.util.Assert;
  * @author Michael Igler
  * @author Jens Schauder
  */
-public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID>
+@Transactional(readOnly = true)
+public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>>
 		implements RevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
@@ -70,8 +71,6 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	 */
 	public EnversRevisionRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
 			RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
-
-		super(entityInformation, entityManager);
 
 		Assert.notNull(revisionEntityInformation, "RevisionEntityInformation must not be null!");
 
