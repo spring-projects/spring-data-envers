@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,24 +18,31 @@ package org.springframework.data.envers.repository.support;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Unit tests for {@link DefaultRevisionMetadata}.
+ *
  * @author Benedikt Ritter
+ * @author Jens Schauder
  */
 public class DefaultRevisionMetadataUnitTests {
 
-	private static final LocalDateTime NOW = LocalDateTime.now();
+	private static final Instant NOW = Instant.now();;
 
-	@Test
+	@Test // #112
 	public void createsLocalDateTimeFromTimestamp() {
+
 		DefaultRevisionEntity entity = new DefaultRevisionEntity();
-		entity.setTimestamp(NOW.toEpochSecond(ZoneOffset.UTC));
+		entity.setTimestamp(NOW.toEpochMilli());
+
 		DefaultRevisionMetadata metadata = new DefaultRevisionMetadata(entity);
 
-		assertThat(metadata.getRevisionDate()).hasValue(NOW);
+		assertThat(metadata.getRevisionDate()).hasValue(LocalDateTime.ofInstant(NOW, ZoneOffset.UTC));
 	}
 }
