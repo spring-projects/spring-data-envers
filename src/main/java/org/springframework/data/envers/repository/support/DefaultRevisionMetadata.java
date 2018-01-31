@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import lombok.Value;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -32,6 +33,7 @@ import org.springframework.data.history.RevisionMetadata;
  * 
  * @author Oliver Gierke
  * @author Philip Huegelmeyer
+ * @author Jens Schauder
  */
 @Value
 public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
@@ -51,7 +53,7 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 	 * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
 	 */
 	public Optional<LocalDateTime> getRevisionDate() {
-		return Optional.of(LocalDateTime.from(Instant.ofEpochMilli(entity.getTimestamp())));
+		return Optional.of(LocalDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneOffset.UTC));
 	}
 
 	/*
