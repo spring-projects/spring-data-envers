@@ -43,6 +43,6 @@ public class DefaultRevisionMetadataUnitTests {
 
 		DefaultRevisionMetadata metadata = new DefaultRevisionMetadata(entity);
 
-		assertThat(metadata.getRevisionDate()).hasValue(LocalDateTime.ofInstant(NOW, ZoneOffset.UTC));
+		assertThat(metadata.getRevisionDate()).hasValue(LocalDateTime.ofInstant(NOW, ZoneOffset.systemDefault()));
 	}
 }
