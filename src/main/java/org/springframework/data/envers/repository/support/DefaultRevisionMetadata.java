@@ -53,7 +53,7 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 	 * @see org.springframework.data.history.RevisionMetadata#getRevisionDate()
 	 */
 	public Optional<LocalDateTime> getRevisionDate() {
-		return Optional.of(LocalDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneOffset.UTC));
+		return Optional.of(LocalDateTime.ofInstant(Instant.ofEpochMilli(entity.getTimestamp()), ZoneOffset.systemDefault()));
 	}
 
 	/*
