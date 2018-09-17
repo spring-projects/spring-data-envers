@@ -151,4 +151,27 @@ public class RepositoryIntegrationTests {
 		assertThat(content, hasSize(2));
 		assertThat(content.get(0).getRevisionNumber(), is(greaterThan(content.get(1).getRevisionNumber())));
 	}
+
+	/**
+	 * @see #21
+	 */
+	@Test
+	public void findsDeletedRevisions() {
+		final int REVISION_COUNT = 2;
+
+		Country korea = new Country();
+		korea.code = "ko";
+		korea.name = "Korea";
+
+		countryRepository.save(korea);
+		countryRepository.delete(korea);
+
+		Revisions<Integer, Country> revisions = countryRepository.findRevisions(korea.id);
+
+		assertThat(revisions, Matchers.<Revision<Integer, Country>>iterableWithSize(REVISION_COUNT));
+		assertThat(revisions.getLatestRevision().getEntity(), notNullValue());
+		assertThat(revisions.getLatestRevision().getEntity().name, nullValue());
+		assertThat(revisions.getLatestRevision().getEntity().code, nullValue());
+
+	}
 }

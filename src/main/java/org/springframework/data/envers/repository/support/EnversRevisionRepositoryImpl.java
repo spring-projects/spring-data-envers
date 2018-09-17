@@ -43,7 +43,9 @@ import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
+import org.springframework.data.util.Pair;
 import org.springframework.util.Assert;
+import org.springframework.util.StreamUtils;
 
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
@@ -128,7 +130,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
 
-		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.EMPTY_LIST)
+		return revisionNumbers.isEmpty() ? new Revisions<N, T>(Collections.<Revision<N,T>>emptyList())
 				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
 	}
 
@@ -182,7 +184,7 @@ public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends 
 				new HashSet<Number>(revisionNumbers));
 
 		for (Number number : revisionNumbers) {
-			revisions.put((N) number, reader.find(type, id, number));
+			revisions.put((N) number, reader.find(type, type.getName(), id, number, true));
 		}
 
 		return new Revisions<N, T>(toRevisions(revisions, revisionEntities));
