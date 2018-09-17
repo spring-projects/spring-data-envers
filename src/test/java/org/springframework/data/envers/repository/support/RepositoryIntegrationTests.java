@@ -45,6 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * Integration tests for repositories.
  * 
  * @author Oliver Gierke
+ * @author Hanbyul Lee
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = Config.class)

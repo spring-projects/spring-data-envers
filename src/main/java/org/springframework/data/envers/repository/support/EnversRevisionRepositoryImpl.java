@@ -53,6 +53,7 @@ import org.springframework.util.StreamUtils;
  * @author Oliver Gierke
  * @author Philipp Huegelmeyer
  * @author Michael Igler
+ * @author Hanbyul Lee
  */
 public class EnversRevisionRepositoryImpl<T, ID extends Serializable, N extends Number & Comparable<N>>
 		extends SimpleJpaRepository<T, ID> implements EnversRevisionRepository<T, ID, N> {
