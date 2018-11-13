@@ -61,7 +61,7 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test
-	public void testname() {
+	public void testLifeCycle() {
 
 		License license = new License();
 		license.name = "Schnitzel";
@@ -99,15 +99,12 @@ public class RepositoryIntegrationTests {
 		});
 	}
 
-	@Test
+	@Test // #1
 	public void returnsEmptyRevisionsForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevisions(100L)).isEmpty();
 	}
 
-	/**
-	 * @see #31
-	 */
-	@Test
+	@Test // #31
 	public void returnsParticularRevisionForAnEntity() {
 
 		Country de = new Country();
@@ -137,10 +134,7 @@ public class RepositoryIntegrationTests {
 		});
 	}
 
-	/**
-	 * @see #55
-	 */
-	@Test
+	@Test // #55
 	public void considersRevisionNumberSortOrder() {
 
 		Country de = new Country();
@@ -161,10 +155,7 @@ public class RepositoryIntegrationTests {
 				.isGreaterThan(page.getContent().get(1).getRequiredRevisionNumber());
 	}
 
-	/**
-	 * @see #21
-	 */
-	@Test
+	@Test // #21
 	public void findsDeletedRevisions() {
 
 		Country de = new Country();
