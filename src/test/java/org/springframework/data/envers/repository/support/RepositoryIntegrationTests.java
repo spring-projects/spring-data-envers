@@ -183,4 +183,25 @@ public class RepositoryIntegrationTests {
 				.extracting(c -> c.name, c -> c.code) //
 				.containsExactly(null, null);
 	}
+
+	@Test // #146
+	public void shortCurcuitingWhenOffsetIsToLarge() {
+		Country de = new Country();
+		de.code = "de";
+		de.name = "Deutschland";
+
+		countryRepository.save(de);
+
+		countryRepository.delete(de);
+
+		check(de, 0, 1);
+		check(de, 1, 1);
+		check(de, 2, 0);
+	}
+
+	void check(Country de, int page, int expectedSize) {
+
+		Page<Revision<Integer, Country>> revisions = countryRepository.findRevisions(de.id, PageRequest.of(page,1));
+		assertThat(revisions).hasSize(expectedSize);
+	}
 }
