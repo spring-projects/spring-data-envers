@@ -52,6 +52,7 @@ import org.springframework.util.Assert;
  * @author Philipp Huegelmeyer
  * @author Michael Igler
  * @author Jens Schauder
+ * @author Julien Millau
  */
 public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>> extends SimpleJpaRepository<T, ID>
 		implements RevisionRepository<T, ID, N> {
@@ -151,8 +152,8 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 			Collections.reverse(revisionNumbers);
 		}
 
-		if (pageable.getOffset() > revisionNumbers.size()) {
-			return new PageImpl<Revision<N, T>>(Collections.<Revision<N, T>> emptyList(), pageable, 0);
+		if (revisionNumbers.isEmpty() || pageable.getOffset() > revisionNumbers.size()) {
+			return Page.empty(pageable);
 		}
 
 		long upperBound = pageable.getOffset() + pageable.getPageSize();
