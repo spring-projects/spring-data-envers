@@ -90,7 +90,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
 
-		List<Number> revisions = reader.getRevisions(type, id);
+		List<Number> revisions = getRevisions(id, type, reader);
 
 		if (revisions.isEmpty()) {
 			return Optional.empty();
@@ -129,7 +129,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
-		List<? extends Number> revisionNumbers = reader.getRevisions(type, id);
+		List<? extends Number> revisionNumbers = getRevisions(id, type, reader);
 
 		return revisionNumbers.isEmpty() ? Revisions.none()
 				: getEntitiesForRevisions((List<N>) revisionNumbers, id, reader);
@@ -144,14 +144,15 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 		Class<T> type = entityInformation.getJavaType();
 		AuditReader reader = AuditReaderFactory.get(entityManager);
-		List<Number> revisionNumbers = reader.getRevisions(type, id);
+		List<Number> revisionNumbers = getRevisions((ID) id, (Class<T>) type, reader);
 		boolean isDescending = RevisionSort.getRevisionDirection(pageable.getSort()).isDescending();
 
 		if (isDescending) {
 			Collections.reverse(revisionNumbers);
 		}
 
-		if (revisionNumbers.isEmpty() || pageable.getOffset() > revisionNumbers.size()) {
+		if (
+				pageable.getOffset() >= revisionNumbers.size()) {
 			return Page.empty(pageable);
 		}
 
@@ -164,6 +165,10 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		revisions = isDescending ? revisions.reverse() : revisions;
 
 		return new PageImpl<Revision<N, T>>(revisions.getContent(), pageable, revisionNumbers.size());
+	}
+
+	List<Number> getRevisions(ID id, Class<T> type, AuditReader reader) {
+		return reader.getRevisions(type, id);
 	}
 
 	/**
