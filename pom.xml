@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.9.17.RELEASE</version>
+		<version>1.9.18.BUILD-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 
@@ -42,8 +42,8 @@
 	</scm>
 
 	<properties>
-		<springdata.commons>1.13.17.RELEASE</springdata.commons>
-		<springdata.jpa>1.11.17.RELEASE</springdata.jpa>
+		<springdata.commons>1.13.18.BUILD-SNAPSHOT</springdata.commons>
+		<springdata.jpa>1.11.18.BUILD-SNAPSHOT</springdata.jpa>
 		<hibernate.envers>4.3.11</hibernate.envers>
 	</properties>
 
@@ -114,8 +114,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-release</id>
-			<url>https://repo.spring.io/libs-release</url>
+			<id>spring-libs-snapshot</id>
+			<url>https://repo.spring.io/libs-snapshot</url>
 		</repository>
 	</repositories>
 
