@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>2.2.0.BUILD-SNAPSHOT</version>
+		<version>2.2.0.M2</version>
 		<relativePath/>
 	</parent>
 
@@ -42,7 +42,7 @@
 	</scm>
 
 	<properties>
-		<springdata.jpa>2.2.0.BUILD-SNAPSHOT</springdata.jpa>
+		<springdata.jpa>2.2.0.M2</springdata.jpa>
 		<hibernate.envers>5.2.11</hibernate.envers>
 		<java-module-name>spring.data.envers</java-module-name>
 	</properties>
@@ -129,8 +129,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>https://repo.spring.io/libs-snapshot</url>
+			<id>spring-libs-milestone</id>
+			<url>https://repo.spring.io/libs-milestone</url>
 		</repository>
 	</repositories>
 
