@@ -16,6 +16,7 @@
 package org.springframework.data.envers.repository.support;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import org.springframework.data.envers.sample.CountryRepository;
 import org.springframework.data.envers.sample.License;
 import org.springframework.data.envers.sample.LicenseRepository;
 import org.springframework.data.history.Revision;
+import org.springframework.data.history.RevisionMetadata;
 import org.springframework.data.history.RevisionSort;
 import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
@@ -183,6 +185,32 @@ public class RepositoryIntegrationTests {
 				.isNotNull() //
 				.extracting(c -> c.name, c -> c.code) //
 				.containsExactly(null, null);
+	}
+
+	@Test // #47
+	public void includesCorrectRevisionType() {
+
+		Country de = new Country();
+		de.code = "de";
+		de.name = "Deutschland";
+
+		countryRepository.save(de);
+
+		de.name = "Bundes Republik Deutschland";
+
+		countryRepository.save(de);
+
+		countryRepository.delete(de);
+
+		Revisions<Integer, Country> revisions = countryRepository.findRevisions(de.id);
+
+		assertThat(revisions) //
+				.extracting(r -> r.getMetadata().getRevisionType()) //
+				.containsExactly( //
+						INSERT, //
+						UPDATE, //
+						DELETE //
+				);
 	}
 
 	@Test // #146

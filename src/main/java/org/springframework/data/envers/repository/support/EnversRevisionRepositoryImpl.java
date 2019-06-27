@@ -45,6 +45,8 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
+
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
  *
@@ -181,7 +183,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 		private final T entity;
 		private final Object metadata;
-		private final RevisionType revisionType;
+		private final RevisionMetadata.RevisionType revisionType;
 
 		QueryResult(Object[] data) {
 
@@ -196,13 +198,23 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 			entity = (T) data[0];
 			metadata = data[1];
-			revisionType = (RevisionType) data[2];
+			revisionType = convertRevisionType(data[2]);
+		}
+
+		private RevisionMetadata.RevisionType convertRevisionType(Object datum) {
+
+			switch ((RevisionType) datum){
+				case ADD:return INSERT;
+				case MOD:return UPDATE;
+				case DEL:return DELETE;
+				default:return UNKNOWN;
+			}
 		}
 
 		RevisionMetadata<N> createRevisionMetadata() {
 
 			return metadata instanceof DefaultRevisionEntity //
-					? (RevisionMetadata<N>) new DefaultRevisionMetadata((DefaultRevisionEntity) metadata) //
+					? (RevisionMetadata<N>) new DefaultRevisionMetadata((DefaultRevisionEntity) metadata, revisionType) //
 					: new AnnotationRevisionMetadata<>(metadata, RevisionNumber.class, RevisionTimestamp.class);
 		}
 	}
