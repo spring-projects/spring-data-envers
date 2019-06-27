@@ -16,6 +16,7 @@
 package org.springframework.data.envers.repository.support;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
@@ -40,9 +41,15 @@ import org.springframework.data.history.RevisionMetadata;
  * @author Jens Schauder
  */
 @Value
+@AllArgsConstructor
 public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 
 	private final @NonNull @Getter(AccessLevel.NONE) DefaultRevisionEntity entity;
+	private final RevisionType revisionType;
+
+	public DefaultRevisionMetadata(DefaultRevisionEntity entity) {
+		this(entity, RevisionType.UNKNOWN);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -79,6 +86,9 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 		return (T) entity;
 	}
 
+	public RevisionType getRevisionType() {
+		return revisionType;
+	}
 	@Override
 	public boolean equals(Object o) {
 
@@ -90,12 +100,7 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 		}
 		DefaultRevisionMetadata that = (DefaultRevisionMetadata) o;
 		return getRevisionNumber().equals(that.getRevisionNumber())
-				&& getRevisionInstant().equals(that.getRevisionInstant());
-	}
-
-	@Override
-	public int hashCode() {
-
-		return Objects.hash(getRevisionNumber(), getRevisionInstant());
+				&& getRevisionInstant().equals(that.getRevisionInstant())
+				&& revisionType.equals(that.getRevisionType());
 	}
 }
