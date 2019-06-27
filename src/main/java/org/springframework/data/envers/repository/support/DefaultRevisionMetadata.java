@@ -23,6 +23,7 @@ import lombok.Value;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.hibernate.envers.DefaultRevisionEntity;
@@ -31,6 +32,9 @@ import org.springframework.data.history.RevisionMetadata;
 /**
  * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}.
  * 
+ * The entity/delegate itself gets ignored for {@link #equals(Object)} and {@link #hashCode()} since they depend on the
+ * way they were obtained.
+ *
  * @author Oliver Gierke
  * @author Philip Huegelmeyer
  * @author Jens Schauder
@@ -57,7 +61,6 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 		return getRevisionInstant().map(instant -> LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.history.RevisionMetadata#getRevisionInstant()
@@ -74,5 +77,25 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 	@SuppressWarnings("unchecked")
 	public <T> T getDelegate() {
 		return (T) entity;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		DefaultRevisionMetadata that = (DefaultRevisionMetadata) o;
+		return getRevisionNumber().equals(that.getRevisionNumber())
+				&& getRevisionInstant().equals(that.getRevisionInstant());
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(getRevisionNumber(), getRevisionInstant());
 	}
 }
