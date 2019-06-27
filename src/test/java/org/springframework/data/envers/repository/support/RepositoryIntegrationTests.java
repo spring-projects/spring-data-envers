@@ -100,8 +100,18 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #1
+	public void returnsEmptyLastRevisionForUnrevisionedEntity() {
+		assertThat(countryRepository.findLastChangeRevision(100L)).isEmpty();
+	}
+
+	@Test // #47
 	public void returnsEmptyRevisionsForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevisions(100L)).isEmpty();
+	}
+
+	@Test // #47
+	public void returnsEmptyRevisionForUnrevisionedEntity() {
+		assertThat(countryRepository.findRevision(100L, 23)).isEmpty();
 	}
 
 	@Test // #31
@@ -176,7 +186,8 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #146
-	public void shortCurcuitingWhenOffsetIsToLarge() {
+	public void shortCircuitingWhenOffsetIsToLarge() {
+
 		Country de = new Country();
 		de.code = "de";
 		de.name = "Deutschland";
@@ -185,14 +196,21 @@ public class RepositoryIntegrationTests {
 
 		countryRepository.delete(de);
 
-		check(de, 0, 1);
-		check(de, 1, 1);
-		check(de, 2, 0);
+		check(de.id, 0, 1, 2);
+		check(de.id, 1, 1, 2);
+		check(de.id, 2, 0, 2);
 	}
 
-	void check(Country de, int page, int expectedSize) {
+	@Test // #47
+	public void paginationWithEmptyResult() {
 
-		Page<Revision<Integer, Country>> revisions = countryRepository.findRevisions(de.id, PageRequest.of(page,1));
+		check(23L, 0, 0, 0);
+	}
+
+	void check(Long id, int page, int expectedSize, int expectedTotalSize) {
+
+		Page<Revision<Integer, Country>> revisions = countryRepository.findRevisions(id, PageRequest.of(page,1));
 		assertThat(revisions).hasSize(expectedSize);
+		assertThat(revisions.getTotalElements()).isEqualTo(expectedTotalSize);
 	}
 }
