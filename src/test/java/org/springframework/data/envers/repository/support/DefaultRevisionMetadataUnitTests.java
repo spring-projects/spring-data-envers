@@ -15,21 +15,22 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import org.hibernate.envers.DefaultRevisionEntity;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.hibernate.envers.DefaultRevisionEntity;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link DefaultRevisionMetadata}.
  *
  * @author Benedikt Ritter
  * @author Jens Schauder
+ * @author Mark Paluch
  */
 public class DefaultRevisionMetadataUnitTests {
 
@@ -43,6 +44,7 @@ public class DefaultRevisionMetadataUnitTests {
 
 		DefaultRevisionMetadata metadata = new DefaultRevisionMetadata(entity);
 
-		assertThat(metadata.getRevisionDate()).hasValue(LocalDateTime.ofInstant(NOW, ZoneOffset.systemDefault()));
+		assertThat(metadata.getRevisionDate())
+				.hasValue(LocalDateTime.ofInstant(NOW, ZoneOffset.systemDefault()).truncatedTo(ChronoUnit.MILLIS));
 	}
 }

@@ -17,6 +17,9 @@ package org.springframework.data.envers.repository.support;
 
 import static org.mockito.Mockito.*;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 
 import org.hibernate.HibernateException;
@@ -24,14 +27,13 @@ import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.boot.internal.EnversService;
+import org.hibernate.service.Service;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Unit tests for EversRevisionRepositoryImpl.
@@ -48,7 +50,6 @@ public class EnversRevisionRepositoryImplUnitTests {
 	EnversService enversService = mock(EnversService.class, RETURNS_DEEP_STUBS);
 	EntityManager entityManager = mock(EntityManager.class);
 
-
 	@Before
 	public void mockHibernateInfrastructure() {
 
@@ -57,7 +58,7 @@ public class EnversRevisionRepositoryImplUnitTests {
 		when(enversService.getEntitiesConfigurations().isVersioned(any(String.class))).thenReturn(true);
 
 		when(session.isOpen()).thenReturn(true);
-		when(session.getFactory().getServiceRegistry().getService(EnversService.class)).thenReturn(enversService);
+		when((Service) session.getFactory().getServiceRegistry().getService(EnversService.class)).thenReturn(enversService);
 
 		when(entityManager.getDelegate()).thenReturn(session);
 	}
@@ -67,7 +68,8 @@ public class EnversRevisionRepositoryImplUnitTests {
 
 		failOnEmptyRevisions();
 
-		EnversRevisionRepositoryImplUnderTest<?, Object, ?> repository = new EnversRevisionRepositoryImplUnderTest<>(entityInformation, revisionEntityInformation, entityManager);
+		EnversRevisionRepositoryImplUnderTest<?, Object, ?> repository = new EnversRevisionRepositoryImplUnderTest<>(
+				entityInformation, revisionEntityInformation, entityManager);
 
 		repository.findRevisions(-999, PageRequest.of(0, 5));
 	}
@@ -80,7 +82,8 @@ public class EnversRevisionRepositoryImplUnitTests {
 	}
 
 	/**
-	 * An extension for the {@link EnversRevisionRepositoryImpl} that skips accessing the AuditReader and always returns an empty List.
+	 * An extension for the {@link EnversRevisionRepositoryImpl} that skips accessing the AuditReader and always returns
+	 * an empty List.
 	 */
 	private class EnversRevisionRepositoryImplUnderTest<T, ID, N extends Number & Comparable<N>>
 			extends EnversRevisionRepositoryImpl<T, ID, N> {
@@ -96,6 +99,5 @@ public class EnversRevisionRepositoryImplUnitTests {
 		}
 	}
 
-	private static class DummyEntity {
-	}
+	private static class DummyEntity {}
 }
