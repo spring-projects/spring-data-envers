@@ -1,6 +1,11 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.3.0.M3 (2020-02-12)
+----------------------------------------
+* #220 - Release 2.3 M3 (Neumann).
+
+
 Changes in version 2.3.0.M2 (2020-01-17)
 ----------------------------------------
 * #219 - Release 2.3 M2 (Neumann).
@@ -10,6 +15,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
