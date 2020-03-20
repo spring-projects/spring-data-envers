@@ -97,6 +97,7 @@ public class RepositoryIntegrationTests {
 			Revisions<Integer, License> revisions = Revisions.of(page.getContent());
 			assertThat(revisions.getLatestRevision()).isEqualTo(it);
 		});
+		licenseRepository.deleteAll();
 	}
 
 	@Test // #1
