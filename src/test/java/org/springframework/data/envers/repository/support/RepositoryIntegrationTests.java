@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +57,14 @@ public class RepositoryIntegrationTests {
 
 	@Before
 	public void setUp() {
+
+		licenseRepository.deleteAll();
+		countryRepository.deleteAll();
+	}
+
+	@After
+	public void tearDown() {
+
 		licenseRepository.deleteAll();
 		countryRepository.deleteAll();
 	}
@@ -80,7 +89,7 @@ public class RepositoryIntegrationTests {
 
 		countryRepository.save(se);
 
-		license.laender = new HashSet<Country>();
+		license.laender = new HashSet<>();
 		license.laender.addAll(Arrays.asList(de, se));
 
 		licenseRepository.save(license);
@@ -97,7 +106,6 @@ public class RepositoryIntegrationTests {
 			Revisions<Integer, License> revisions = Revisions.of(page.getContent());
 			assertThat(revisions.getLatestRevision()).isEqualTo(it);
 		});
-		licenseRepository.deleteAll();
 	}
 
 	@Test // #1
@@ -126,13 +134,11 @@ public class RepositoryIntegrationTests {
 		Revision<Integer, Country> first = iterator.next();
 		Revision<Integer, Country> second = iterator.next();
 
-		assertThat(countryRepository.findRevision(de.id, first.getRequiredRevisionNumber())).hasValueSatisfying(it -> {
-			assertThat(it.getEntity().name).isEqualTo("Deutschland");
-		});
+		assertThat(countryRepository.findRevision(de.id, first.getRequiredRevisionNumber()))
+				.hasValueSatisfying(it -> assertThat(it.getEntity().name).isEqualTo("Deutschland"));
 
-		assertThat(countryRepository.findRevision(de.id, second.getRequiredRevisionNumber())).hasValueSatisfying(it -> {
-			assertThat(it.getEntity().name).isEqualTo("Germany");
-		});
+		assertThat(countryRepository.findRevision(de.id, second.getRequiredRevisionNumber()))
+				.hasValueSatisfying(it -> assertThat(it.getEntity().name).isEqualTo("Germany"));
 	}
 
 	@Test // #55
@@ -193,7 +199,7 @@ public class RepositoryIntegrationTests {
 
 	void check(Country de, int page, int expectedSize) {
 
-		Page<Revision<Integer, Country>> revisions = countryRepository.findRevisions(de.id, PageRequest.of(page,1));
+		Page<Revision<Integer, Country>> revisions = countryRepository.findRevisions(de.id, PageRequest.of(page, 1));
 		assertThat(revisions).hasSize(expectedSize);
 	}
 }
