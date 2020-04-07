@@ -15,9 +15,11 @@
  */
 package org.springframework.data.envers.repository.support;
 
+import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
@@ -30,6 +32,7 @@ import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.hibernate.envers.query.order.AuditOrder;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -45,8 +48,6 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
-
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
  *
@@ -55,13 +56,13 @@ import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
  * @author Michael Igler
  * @author Jens Schauder
  * @author Julien Millau
+ * @author Mark Paluch
  */
 @Transactional(readOnly = true)
 public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>>
 		implements RevisionRepository<T, ID, N> {
 
 	private final EntityInformation<T, ?> entityInformation;
-	private final RevisionEntityInformation revisionEntityInformation;
 	private final EntityManager entityManager;
 
 	/**
@@ -78,7 +79,6 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		Assert.notNull(revisionEntityInformation, "RevisionEntityInformation must not be null!");
 
 		this.entityInformation = entityInformation;
-		this.revisionEntityInformation = revisionEntityInformation;
 		this.entityManager = entityManager;
 	}
 
@@ -96,10 +96,11 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 		Assert.state(singleResult.size() <= 1, "We expect at most one result.");
 
-		return singleResult.stream() //
-				.findFirst() //
-				.map(QueryResult::new) //
-				.map(this::createRevision);
+		if (singleResult.isEmpty()) {
+			return Optional.empty();
+		}
+
+		return Optional.of(createRevision(new QueryResult<>(singleResult.get(0))));
 	}
 
 	/*
@@ -119,26 +120,24 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 		Assert.state(singleResult.size() <= 1, "We expect at most one result.");
 
-		return singleResult.stream() //
-				.findFirst() //
-				.map(QueryResult::new) //
-				.map(this::createRevision);
+		if (singleResult.isEmpty()) {
+			return Optional.empty();
+		}
 
+		return Optional.of(createRevision(new QueryResult<>(singleResult.get(0))));
 	}
 
 	@SuppressWarnings("unchecked")
 	public Revisions<N, T> findRevisions(ID id) {
 
-		List<Object[]> resultList = createBaseQuery(id) //
-				.getResultList();
+		List<Object[]> resultList = createBaseQuery(id).getResultList();
+		List<Revision<N, T>> revisionList = new ArrayList<>(resultList.size());
 
-		List<Revision<N, T>> revisionList = resultList.stream() //
-				.map(QueryResult::new) //
-				.map(this::createRevision) //
-				.collect(Collectors.toList());
+		for (Object[] objects : resultList) {
+			revisionList.add(createRevision(new QueryResult<>(objects)));
+		}
 
 		return Revisions.of(revisionList);
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -157,8 +156,11 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		Long count = (Long) createBaseQuery(id) //
 				.addProjection(AuditEntity.revisionNumber().count()).getSingleResult();
 
-		List<Revision<N, T>> revisions = resultList.stream()
-				.map(singleResult -> createRevision(new QueryResult(singleResult))).collect(Collectors.toList());
+		List<Revision<N, T>> revisions = new ArrayList<>();
+
+		for (Object[] singleResult : resultList) {
+			revisions.add(createRevision(new QueryResult<>(singleResult)));
+		}
 
 		return new PageImpl<>(revisions, pageable, count);
 	}
@@ -170,16 +172,16 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 		return reader.createQuery() //
 				.forRevisionsOfEntity(type, false, true) //
-				.add(AuditEntity.id().eq(id)) ;
-	}
-
-	private Revision<N, T> createRevision(QueryResult queryResult) {
-
-		return Revision.of(queryResult.createRevisionMetadata(), queryResult.entity);
+				.add(AuditEntity.id().eq(id));
 	}
 
 	@SuppressWarnings("unchecked")
-	private class QueryResult {
+	private Revision<N, T> createRevision(QueryResult<T> queryResult) {
+		return Revision.of((RevisionMetadata<N>) queryResult.createRevisionMetadata(), queryResult.entity);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static class QueryResult<T> {
 
 		private final T entity;
 		private final Object metadata;
@@ -198,24 +200,29 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 			entity = (T) data[0];
 			metadata = data[1];
-			revisionType = convertRevisionType(data[2]);
+			revisionType = convertRevisionType((RevisionType) data[2]);
 		}
 
-		private RevisionMetadata.RevisionType convertRevisionType(Object datum) {
-
-			switch ((RevisionType) datum){
-				case ADD:return INSERT;
-				case MOD:return UPDATE;
-				case DEL:return DELETE;
-				default:return UNKNOWN;
-			}
-		}
-
-		RevisionMetadata<N> createRevisionMetadata() {
+		RevisionMetadata<?> createRevisionMetadata() {
 
 			return metadata instanceof DefaultRevisionEntity //
-					? (RevisionMetadata<N>) new DefaultRevisionMetadata((DefaultRevisionEntity) metadata, revisionType) //
+					? new DefaultRevisionMetadata((DefaultRevisionEntity) metadata, revisionType) //
 					: new AnnotationRevisionMetadata<>(metadata, RevisionNumber.class, RevisionTimestamp.class);
+		}
+
+		private static RevisionMetadata.RevisionType convertRevisionType(RevisionType datum) {
+
+			switch (datum) {
+
+				case ADD:
+					return INSERT;
+				case MOD:
+					return UPDATE;
+				case DEL:
+					return DELETE;
+				default:
+					return UNKNOWN;
+			}
 		}
 	}
 

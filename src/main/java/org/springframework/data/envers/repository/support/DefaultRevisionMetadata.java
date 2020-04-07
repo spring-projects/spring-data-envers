@@ -15,40 +15,37 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Value;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.hibernate.envers.DefaultRevisionEntity;
+
 import org.springframework.data.history.RevisionMetadata;
 
 /**
- * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}.
- * 
- * The entity/delegate itself gets ignored for {@link #equals(Object)} and {@link #hashCode()} since they depend on the
- * way they were obtained.
+ * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}. The entity/delegate itself gets ignored for
+ * {@link #equals(Object)} and {@link #hashCode()} since they depend on the way they were obtained.
  *
  * @author Oliver Gierke
  * @author Philip Huegelmeyer
  * @author Jens Schauder
  */
-@Value
-@AllArgsConstructor
-public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
+public final class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 
-	private final @NonNull @Getter(AccessLevel.NONE) DefaultRevisionEntity entity;
+	private final @NonNull DefaultRevisionEntity entity;
 	private final RevisionType revisionType;
 
 	public DefaultRevisionMetadata(DefaultRevisionEntity entity) {
 		this(entity, RevisionType.UNKNOWN);
+	}
+
+	public DefaultRevisionMetadata(@NonNull DefaultRevisionEntity entity, RevisionType revisionType) {
+		this.entity = entity;
+		this.revisionType = revisionType;
 	}
 
 	/*
@@ -56,7 +53,7 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 	 * @see org.springframework.data.history.RevisionMetadata#getRevisionNumber()
 	 */
 	public Optional<Integer> getRevisionNumber() {
-		return Optional.ofNullable(entity.getId());
+		return Optional.of(entity.getId());
 	}
 
 	/*
@@ -86,9 +83,19 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 		return (T) entity;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.history.RevisionMetadata#getRevisionType()
+	 */
+	@Override
 	public RevisionType getRevisionType() {
 		return revisionType;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object o) {
 
@@ -100,7 +107,15 @@ public class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 		}
 		DefaultRevisionMetadata that = (DefaultRevisionMetadata) o;
 		return getRevisionNumber().equals(that.getRevisionNumber())
-				&& getRevisionInstant().equals(that.getRevisionInstant())
-				&& revisionType.equals(that.getRevisionType());
+				&& getRevisionInstant().equals(that.getRevisionInstant()) && revisionType.equals(that.getRevisionType());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "DefaultRevisionMetadata{" + "entity=" + entity + ", revisionType=" + revisionType + '}';
 	}
 }
