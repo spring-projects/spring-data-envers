@@ -57,6 +57,7 @@ import org.springframework.util.Assert;
  * @author Jens Schauder
  * @author Julien Millau
  * @author Mark Paluch
+ * @author Sander Bylemans
  */
 @Transactional(readOnly = true)
 public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>>
