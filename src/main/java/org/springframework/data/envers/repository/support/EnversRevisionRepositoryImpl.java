@@ -207,7 +207,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 			return metadata instanceof DefaultRevisionEntity //
 					? new DefaultRevisionMetadata((DefaultRevisionEntity) metadata, revisionType) //
-					: new AnnotationRevisionMetadata<>(metadata, RevisionNumber.class, RevisionTimestamp.class);
+					: new AnnotationRevisionMetadata<>(metadata, RevisionNumber.class, RevisionTimestamp.class, revisionType);
 		}
 
 		private static RevisionMetadata.RevisionType convertRevisionType(RevisionType datum) {
