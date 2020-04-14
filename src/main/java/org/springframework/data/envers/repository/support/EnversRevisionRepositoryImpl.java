@@ -182,7 +182,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	}
 
 	@SuppressWarnings("unchecked")
-	private static class QueryResult<T> {
+	static class QueryResult<T> {
 
 		private final T entity;
 		private final Object metadata;

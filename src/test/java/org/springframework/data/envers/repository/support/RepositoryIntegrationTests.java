@@ -36,7 +36,6 @@ import org.springframework.data.envers.sample.CountryRepository;
 import org.springframework.data.envers.sample.License;
 import org.springframework.data.envers.sample.LicenseRepository;
 import org.springframework.data.history.Revision;
-import org.springframework.data.history.RevisionMetadata;
 import org.springframework.data.history.RevisionSort;
 import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
