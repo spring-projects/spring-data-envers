@@ -1,6 +1,13 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.3.0.RC2 (2020-04-28)
+-----------------------------------------
+* #230 - Use JDK 14 for Java.NEXT CI testing.
+* #229 - Release 2.3 RC2 (Neumann).
+* #215 - RevisionType always Unknown in RevisionMetadata.
+
+
 Changes in version 2.3.0.RC1 (2020-03-31)
 -----------------------------------------
 * #224 - Release 2.3 RC1 (Neumann).
@@ -25,6 +32,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
