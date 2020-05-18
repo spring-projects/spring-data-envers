@@ -15,9 +15,8 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import lombok.Getter;
-
 import org.hibernate.envers.RevisionNumber;
+
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 import org.springframework.data.util.AnnotationDetectionFieldCallback;
 import org.springframework.util.Assert;
@@ -26,10 +25,9 @@ import org.springframework.util.ReflectionUtils;
 /**
  * {@link RevisionEntityInformation} that uses reflection to inspect a property annotated with {@link RevisionNumber} to
  * find out about the revision number type.
- * 
+ *
  * @author Oliver Gierke
  */
-@Getter
 public class ReflectionRevisionEntityInformation implements RevisionEntityInformation {
 
 	private final Class<?> revisionEntityClass;
@@ -37,7 +35,7 @@ public class ReflectionRevisionEntityInformation implements RevisionEntityInform
 
 	/**
 	 * Creates a new {@link ReflectionRevisionEntityInformation} inspecting the given revision entity class.
-	 * 
+	 *
 	 * @param revisionEntityClass must not be {@literal null}.
 	 */
 	public ReflectionRevisionEntityInformation(Class<?> revisionEntityClass) {
@@ -58,5 +56,13 @@ public class ReflectionRevisionEntityInformation implements RevisionEntityInform
 	 */
 	public boolean isDefaultRevisionEntity() {
 		return false;
+	}
+
+	public Class<?> getRevisionEntityClass() {
+		return this.revisionEntityClass;
+	}
+
+	public Class<?> getRevisionNumberType() {
+		return this.revisionNumberType;
 	}
 }

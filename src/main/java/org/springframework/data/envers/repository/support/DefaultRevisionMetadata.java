@@ -15,8 +15,6 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import lombok.NonNull;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -25,6 +23,7 @@ import java.util.Optional;
 import org.hibernate.envers.DefaultRevisionEntity;
 
 import org.springframework.data.history.RevisionMetadata;
+import org.springframework.util.Assert;
 
 /**
  * {@link RevisionMetadata} working with a {@link DefaultRevisionEntity}. The entity/delegate itself gets ignored for
@@ -36,14 +35,17 @@ import org.springframework.data.history.RevisionMetadata;
  */
 public final class DefaultRevisionMetadata implements RevisionMetadata<Integer> {
 
-	private final @NonNull DefaultRevisionEntity entity;
+	private final DefaultRevisionEntity entity;
 	private final RevisionType revisionType;
 
 	public DefaultRevisionMetadata(DefaultRevisionEntity entity) {
 		this(entity, RevisionType.UNKNOWN);
 	}
 
-	public DefaultRevisionMetadata(@NonNull DefaultRevisionEntity entity, RevisionType revisionType) {
+	public DefaultRevisionMetadata(DefaultRevisionEntity entity, RevisionType revisionType) {
+
+		Assert.notNull(entity, "DefaultRevisionEntity must not be null");
+
 		this.entity = entity;
 		this.revisionType = revisionType;
 	}
