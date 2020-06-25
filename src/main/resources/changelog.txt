@@ -1,6 +1,13 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.4.0-M1 (2020-06-25)
+----------------------------------------
+* #239 - Use standard Spring code of conduct.
+* #238 - Delombok source files.
+* #237 - Release 2.4 M1 (2020.0.0).
+
+
 Changes in version 2.3.1.RELEASE (2020-06-10)
 ---------------------------------------------
 * #236 - Release 2.3.1 (Neumann SR1).
@@ -42,6 +49,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
