@@ -1,6 +1,12 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.4.0-RC2 (2020-10-14)
+-----------------------------------------
+* #256 - Update CI jobs for Java 15.
+* #255 - Release 2.4 RC2 (2020.0.0).
+
+
 Changes in version 2.4.0-RC1 (2020-09-16)
 -----------------------------------------
 * #251 - Release 2.4 RC1 (2020.0.0).
@@ -74,6 +80,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
