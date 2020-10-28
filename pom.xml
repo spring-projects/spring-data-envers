@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>2.4.0</version>
+		<version>2.4.1-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 
@@ -42,7 +42,7 @@
 	</scm>
 
 	<properties>
-		<springdata.jpa>2.4.0</springdata.jpa>
+		<springdata.jpa>2.4.1-SNAPSHOT</springdata.jpa>
 		<hibernate.envers>5.4.8</hibernate.envers>
 		<java-module-name>spring.data.envers</java-module-name>
 	</properties>
@@ -110,8 +110,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-release</id>
-			<url>https://repo.spring.io/libs-release</url>
+			<id>spring-libs-snapshot</id>
+			<url>https://repo.spring.io/libs-snapshot</url>
 		</repository>
 	</repositories>
 
