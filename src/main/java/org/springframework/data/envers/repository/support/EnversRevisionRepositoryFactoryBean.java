@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.springframework.data.repository.history.support.RevisionEntityInforma
 
 /**
  * {@link FactoryBean} creating {@link RevisionRepository} instances.
- * 
+ *
  * @author Oliver Gierke
  * @author Michael Igler
  */
@@ -42,7 +42,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 
 	/**
 	 * Creates a new {@link EnversRevisionRepositoryFactoryBean} for the given repository interface.
-	 * 
+	 *
 	 * @param repositoryInterface must not be {@literal null}.
 	 */
 	public EnversRevisionRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
@@ -51,7 +51,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 
 	/**
 	 * Configures the revision entity class. Will default to {@link DefaultRevisionEntity}.
-	 * 
+	 *
 	 * @param revisionEntityClass
 	 */
 	public void setRevisionEntityClass(Class<?> revisionEntityClass) {
@@ -69,7 +69,7 @@ public class EnversRevisionRepositoryFactoryBean<T extends RevisionRepository<S,
 
 	/**
 	 * Repository factory creating {@link RevisionRepository} instances.
-	 * 
+	 *
 	 * @author Oliver Gierke
 	 * @author Jens Schauder
 	 */
