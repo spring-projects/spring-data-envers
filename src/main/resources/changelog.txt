@@ -1,6 +1,11 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.5.0-M3 (2021-02-17)
+----------------------------------------
+* #265 - Enable Project automation through GitHub Actions.
+
+
 Changes in version 2.4.4 (2021-02-17)
 -------------------------------------
 
@@ -133,6 +138,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
