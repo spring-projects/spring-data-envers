@@ -1,6 +1,12 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.3.7.RELEASE (2021-02-17)
+---------------------------------------------
+* #271 - Update copyright year to 2021.
+* #266 - Update CI jobs with Docker Login.
+
+
 Changes in version 2.5.0-M2 (2021-01-13)
 ----------------------------------------
 * #271 - Update copyright year to 2021.
@@ -123,6 +129,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
