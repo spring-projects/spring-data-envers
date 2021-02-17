@@ -1,0 +1,134 @@
+[[envers.what]]
+== What is Spring Data Envers
+
+Spring Data Envers differs from other Spring Data modules in that it is always used in combination with another Spring Data Module: Spring Data JPA.
+It makes typical Envers queries available in repositories for Spring Data JPA.
+
+== What is Envers?
+
+Envers is a Hibernate module which adds auditing capabilities to JPA entities.
+This documentation assumes you are familiar with Envers just as Spring Data Envers relies on Envers being properly configured.
+
+
+[[envers.getting-started]]
+== Getting Started
+
+As a starting point for using Spring Data Envers you need a project with Spring Data JPA.
+The easiest way to create that is using the Spring Initializr either on start.spring.io or via its integration in your favorite IDE.
+
+Now add spring-data-envers as a dependency
+[source,xml,subs="+attributes"]
+----
+<dependencies>
+
+  <!-- other dependency elements omitted -->
+
+  <dependency>
+    <groupId>org.springframework.data</groupId>
+    <artifactId>spring-data-envers</artifactId>
+    <version>{version}</version>
+  </dependency>
+
+</dependencies>
+----
+This will also bring hibernate-envers into the project as a transient dependency.
+
+Next is to make one or more repositories into {spring-data-commons-javadoc-base}/org/springframework/data/repository/history/RevisionRepository.html[`RevisionRepository`] by adding it as an extended interface.
+
+[source,java]
+----
+public interface PersonRepository
+    extends CrudRepository<Person, Long>,
+    RevisionRepository<Person, Long, Long> {}
+----
+
+In order to provide an implementations contained in that interface we have to use a different `repositoryFactoryBeanClass` for creating repositories.
+
+[source,java]
+----
+@SpringBootApplication
+@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
+public class EnversDemoConfiguration {}
+----
+
+The entity for that repository should be an entity with Envers auditing enabled, i.e. it has an `@Audited` annotation.
+
+[source,java]
+----
+@Entity
+@Audited
+public class Person {
+
+	@Id @GeneratedValue
+	Long id;
+	String name;
+	@Version Long version;
+}
+----
+
+You may now use the methods from `RevisionRepository` to query the revisions of the entity as demonstrated in the following test case.
+
+
+
+[source,java]
+----
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+public class EnversIntegrationTests {
+
+	@Autowired PersonRepository repository;
+	@Autowired TransactionTemplate tx;
+
+	@Test
+	void testRepository() {
+
+		Person updated = preparePersonHistory();
+
+		Revisions<Long, Person> revisions = repository.findRevisions(updated.id);
+
+		assertThat(revisions) //
+				.extracting( //
+						rev -> rev.getEntity().name, //
+						rev -> rev.getMetadata().getRevisionType()) //
+				.containsExactly( //
+						tuple("John", RevisionType.INSERT), //
+						tuple("Jonny", RevisionType.UPDATE), //
+						tuple(null, RevisionType.DELETE) //
+				);
+	}
+
+	private Person preparePersonHistory() {
+
+		Person john = new Person();
+		john.setName("John");
+
+		//create
+		Person saved = tx.execute(__ -> repository.save(john));
+		assertThat(saved).isNotNull();
+
+		saved.setName("Jonny");
+
+		// update
+		Person updated = tx.execute(__ -> repository.save(saved));
+		assertThat(updated).isNotNull();
+
+		// delete
+		tx.executeWithoutResult(__->repository.delete(updated));
+		return updated;
+	}
+}
+----
+
+
+[[envers.resources]]
+== Further Resources
+
+There is a https://github.com/spring-projects/spring-data-examples[Spring Data Envers example in the Spring Data Examples repository] that you can download and play around with to get a feel for how the library works.
+
+You should also check out the https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/history/RevisionRepository.html[Javadoc for `RevisionRepository`] and related classes.
+
+Questions are best asked at https://stackoverflow.com/questions/tagged/spring-data-envers[Stackoverflow using the `spring-data-envers` tag].
+
+The https://github.com/spring-projects/spring-data-envers[source code and issue tracker for Spring Data Envers is hosted at GitHub].
+
+
