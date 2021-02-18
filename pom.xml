@@ -35,6 +35,12 @@
 			<email>michael.igler@forward-tech.de</email>
 			<organization>Freelancer</organization>
 		</developer>
+		<developer>
+			<name>Jens Schauder</name>
+			<email>jschauder@vmware.com</email>
+			<organization>VMware, Inc.</organization>
+			<organizationUrl>www.spring.io</organizationUrl>
+		</developer>
 	</developers>
 
 	<scm>
