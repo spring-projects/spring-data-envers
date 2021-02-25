@@ -1,12 +1,13 @@
-[[envers.what]]
+[[envers.what.is.spring.data]]
 == What is Spring Data Envers
 
 Spring Data Envers differs from other Spring Data modules in that it is always used in combination with another Spring Data Module: Spring Data JPA.
 It makes typical Envers queries available in repositories for Spring Data JPA.
 
+[[envers.what]]
 == What is Envers?
 
-Envers is a Hibernate module which adds auditing capabilities to JPA entities.
+Envers is a https://hibernate.org/orm/envers/[Hibernate module] which adds auditing capabilities to JPA entities.
 This documentation assumes you are familiar with Envers just as Spring Data Envers relies on Envers being properly configured.
 
 [[envers.configuration]]
@@ -40,8 +41,9 @@ In order to enable Spring Data Envers and Spring Data JPA we need to configure t
 @EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class) // <1>
 @EnableTransactionManagement
 public class EnversDemoConfiguration {
-@Bean
-public DataSource dataSource() {
+
+	@Bean
+	public DataSource dataSource() {
 
 		EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
 		return builder.setType(EmbeddedDatabaseType.HSQL).build();
@@ -77,7 +79,7 @@ In order to actually use Spring Data Envers make one or more repositories into {
 ====
 [source,java]
 ----
-public interface PersonRepository
+interface PersonRepository
     extends CrudRepository<Person, Long>,
     RevisionRepository<Person, Long, Long> // <1>
 {}
@@ -92,7 +94,7 @@ The entity for that repository must be an entity with Envers auditing enabled, i
 ----
 @Entity
 @Audited
-public class Person {
+class Person {
 
 	@Id @GeneratedValue
 	Long id;
@@ -111,7 +113,7 @@ You may now use the methods from `RevisionRepository` to query the revisions of 
 ----
 @ExtendWith(SpringExtension.class)
 @Import(EnversDemoConfiguration.class) // <1>
-public class EnversIntegrationTests {
+class EnversIntegrationTests {
 
 	final PersonRepository repository;
 	final TransactionTemplate tx;
@@ -181,7 +183,7 @@ public class EnversIntegrationTests {
 	}
 }
 ----
-<1> This references the application context configuration presented above
+<1> This references the application context configuration presented above.
 ====
 
 [[envers.resources]]
@@ -189,7 +191,7 @@ public class EnversIntegrationTests {
 
 There is a https://github.com/spring-projects/spring-data-examples[Spring Data Envers example in the Spring Data Examples repository] that you can download and play around with to get a feel for how the library works.
 
-You should also check out the https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/history/RevisionRepository.html[Javadoc for `RevisionRepository`] and related classes.
+You should also check out the {spring-data-commons-javadoc-base}/org/springframework/data/repository/history/RevisionRepository.html[Javadoc for `RevisionRepository`] and related classes.
 
 Questions are best asked at https://stackoverflow.com/questions/tagged/spring-data-envers[Stackoverflow using the `spring-data-envers` tag].
 
