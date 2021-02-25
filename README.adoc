@@ -31,11 +31,24 @@ You can pull in this functionality to your repositories by simply additionally e
 ----
 interface PersonRepository extends RevisionRepository<Person, Long, Integer>, CrudRepository<Person, Long> {
 
-  // Your query methods go here
+	// Your query methods go here
 }
 ----
 
-To successfully activate the Spring Data Envers repository factory use the Spring Data JPA repositories namespace element's `factory-class` attribute:
+To successfully activate the Spring Data Envers repository factory, use the Spring Data JPA's `@EnableJpaRepositories` annotation, specifying the `repositoryFactoryBeanClass` attribute:
+
+[source,java]
+----
+@Configuration
+@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
+public class ApplicationConfiguration {
+
+	// Your configuration beans
+
+}
+----
+
+or use the Spring Data JPA repositories namespace element's `factory-class` attribute, in case of XML configuration:
 
 [source,xml]
 ----
@@ -81,7 +94,7 @@ Having trouble with Spring Data? We’d love to help!
 https://docs.spring.io/spring-data/envers/docs/current/reference/html/[reference documentation], and https://docs.spring.io/spring-data/envers/docs/current/api/[Javadocs].
 * Learn the Spring basics – Spring Data builds on Spring Framework, check the https://spring.io[spring.io] web-site for a wealth of reference documentation.
 If you are just starting out with Spring, try one of the https://spring.io/guides[guides].
-* Ask a question - we monitor https://stackoverflow.com[stackoverflow.com] for questions tagged with https://stackoverflow.com/tags/spring-data[`spring-data-envers`].
+* Ask a question - we monitor https://stackoverflow.com[stackoverflow.com] for questions tagged with https://stackoverflow.com/tags/spring-data-envers[`spring-data-envers`].
 You can also chat with the community on https://gitter.im/spring-projects/spring-data[Gitter].
 * Report bugs with Spring Data envers at https://github.com/spring-projects/spring-data-envers/issues[github.com/spring-projects/spring-data-envers/issues].
 
