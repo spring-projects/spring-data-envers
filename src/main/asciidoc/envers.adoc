@@ -1,20 +1,21 @@
 [[envers.what.is.spring.data]]
-== What is Spring Data Envers
+== What is Spring Data Envers?
 
-Spring Data Envers differs from other Spring Data modules in that it is always used in combination with another Spring Data Module: Spring Data JPA.
-It makes typical Envers queries available in repositories for Spring Data JPA.
+Spring Data Envers makes typical Envers queries available in repositories for Spring Data JPA.
+It differs from other Spring Data modules in that it is always used in combination with another Spring Data Module: Spring Data JPA.
 
 [[envers.what]]
 == What is Envers?
 
-Envers is a https://hibernate.org/orm/envers/[Hibernate module] which adds auditing capabilities to JPA entities.
-This documentation assumes you are familiar with Envers just as Spring Data Envers relies on Envers being properly configured.
+Envers is a https://hibernate.org/orm/envers/[Hibernate module] that adds auditing capabilities to JPA entities.
+This documentation assumes you are familiar with Envers, just as Spring Data Envers relies on Envers being properly configured.
 
 [[envers.configuration]]
 == Configuration
 
-As a starting point for using Spring Data Envers you need a project with Spring Data JPA on the classpath and an additional `spring-data-envers` dependency.
+As a starting point for using Spring Data Envers, you need a project with Spring Data JPA on the classpath and an additional `spring-data-envers` dependency:
 
+====
 [source,xml,subs="+attributes"]
 ----
 <dependencies>
@@ -29,10 +30,11 @@ As a starting point for using Spring Data Envers you need a project with Spring 
 
 </dependencies>
 ----
+====
 
-This will also bring `hibernate-envers` into the project as a transient dependency.
+This also brings `hibernate-envers` into the project as a transient dependency.
 
-In order to enable Spring Data Envers and Spring Data JPA we need to configure two beans and a special `repositoryFactoryBeanClass`
+To enable Spring Data Envers and Spring Data JPA, we need to configure two beans and a special `repositoryFactoryBeanClass`:
 
 ====
 [source,java]
@@ -71,10 +73,10 @@ public class EnversDemoConfiguration {
 	}
 }
 ----
-<1> This is the only difference to a normal Spring Data JPA configuration. `EnversRevisionRepositoryFactoryBean` ensures implementations of the methods in `RevisionRepository` are available.
+<1> This is the only difference from a normal Spring Data JPA configuration. `EnversRevisionRepositoryFactoryBean` ensures implementations of the methods in `RevisionRepository` are available.
 ====
 
-In order to actually use Spring Data Envers make one or more repositories into {spring-data-commons-javadoc-base}/org/springframework/data/repository/history/RevisionRepository.html[`RevisionRepository`] by adding it as an extended interface.
+To actually use Spring Data Envers, make one or more repositories into a {spring-data-commons-javadoc-base}/org/springframework/data/repository/history/RevisionRepository.html[`RevisionRepository`] by adding it as an extended interface:
 
 ====
 [source,java]
@@ -84,12 +86,13 @@ interface PersonRepository
     RevisionRepository<Person, Long, Long> // <1>
 {}
 ----
-<1> The first type parameter `Person` denotes the entity type, the second (`Long`) the type of the id property and the last one (`Long`) is the type of the revision number.
-For Envers in default configuration this should be `Integer` or `Long`.
+<1> The first type parameter (`Person`) denotes the entity type, the second (`Long`) denotes the type of the id property, and the last one (`Long`) is the type of the revision number.
+For Envers in default configuration, the revision number parameter should be `Integer` or `Long`.
 ====
 
-The entity for that repository must be an entity with Envers auditing enabled, i.e. it has an `@Audited` annotation.
+The entity for that repository must be an entity with Envers auditing enabled (that is, it must have an `@Audited` annotation):
 
+====
 [source,java]
 ----
 @Entity
@@ -102,11 +105,12 @@ class Person {
 	@Version Long version;
 }
 ----
+====
 
 [[envers.usage]]
 == Usage
 
-You may now use the methods from `RevisionRepository` to query the revisions of the entity as demonstrated in the following test case.
+You can now use the methods from `RevisionRepository` to query the revisions of the entity, as the following test case shows:
 
 ====
 [source,java]
@@ -183,18 +187,16 @@ class EnversIntegrationTests {
 	}
 }
 ----
-<1> This references the application context configuration presented above.
+<1> This references the application context configuration presented earlier (in the <<envers.configuration>> section).
 ====
 
 [[envers.resources]]
 == Further Resources
 
-There is a https://github.com/spring-projects/spring-data-examples[Spring Data Envers example in the Spring Data Examples repository] that you can download and play around with to get a feel for how the library works.
+You can download the https://github.com/spring-projects/spring-data-examples[Spring Data Envers example in the Spring Data Examples repository] and play around with to get a feel for how the library works.
 
 You should also check out the {spring-data-commons-javadoc-base}/org/springframework/data/repository/history/RevisionRepository.html[Javadoc for `RevisionRepository`] and related classes.
 
-Questions are best asked at https://stackoverflow.com/questions/tagged/spring-data-envers[Stackoverflow using the `spring-data-envers` tag].
+You can ask questions at https://stackoverflow.com/questions/tagged/spring-data-envers[Stackoverflow by using the `spring-data-envers` tag].
 
 The https://github.com/spring-projects/spring-data-envers[source code and issue tracker for Spring Data Envers is hosted at GitHub].
-
-
