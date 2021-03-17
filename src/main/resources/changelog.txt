@@ -1,6 +1,13 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.3.8.RELEASE (2021-03-17)
+---------------------------------------------
+* #283 - Editing pass.
+* #282 - Add Java config example, fix StackOverflow tag URL.
+* #61 - Spring Data Envers Documentation Only Contains General Spring Data Information.
+
+
 Changes in version 2.5.0-M4 (2021-02-18)
 ----------------------------------------
 
@@ -146,6 +153,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
