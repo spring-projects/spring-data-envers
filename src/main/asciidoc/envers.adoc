@@ -40,7 +40,7 @@ To enable Spring Data Envers and Spring Data JPA, we need to configure two beans
 [source,java]
 ----
 @Configuration
-@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class) // <1>
+@EnableEnversRepositories
 @EnableTransactionManagement
 public class EnversDemoConfiguration {
 
@@ -73,7 +73,6 @@ public class EnversDemoConfiguration {
 	}
 }
 ----
-<1> This is the only difference from a normal Spring Data JPA configuration. `EnversRevisionRepositoryFactoryBean` ensures implementations of the methods in `RevisionRepository` are available.
 ====
 
 To actually use Spring Data Envers, make one or more repositories into a {spring-data-commons-javadoc-base}/org/springframework/data/repository/history/RevisionRepository.html[`RevisionRepository`] by adding it as an extended interface:

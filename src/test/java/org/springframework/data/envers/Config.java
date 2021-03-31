@@ -22,10 +22,10 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.hibernate.envers.strategy.ValidityAuditStrategy;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.envers.repository.config.EnableEnversRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.AbstractEntityManagerFactoryBean;
@@ -41,7 +41,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @author Oliver Gierke
  */
 @Configuration
-@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
+@EnableEnversRepositories
 public class Config {
 
 	@Bean

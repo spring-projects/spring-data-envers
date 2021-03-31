@@ -1,5 +1,5 @@
 = Spring Data Envers - Reference Documentation
-Oliver Gierke; Jens Schauder
+Oliver Gierke; Jens Schauder; Mark Paluch
 :revnumber: {version}
 :revdate: {localdate}
 :javadoc-base: https://docs.spring.io/spring-data/envers/docs/{revnumber}/api/
