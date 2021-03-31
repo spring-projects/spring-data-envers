@@ -23,10 +23,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,7 +40,7 @@ import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionSort;
 import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration tests for repositories.
@@ -47,31 +48,31 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Oliver Gierke
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
-public class RepositoryIntegrationTests {
+class RepositoryIntegrationTests {
 
 	@Autowired
 	LicenseRepository licenseRepository;
 	@Autowired
 	CountryRepository countryRepository;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 
 		licenseRepository.deleteAll();
 		countryRepository.deleteAll();
 	}
 
-	@After
-	public void tearDown() {
+	@AfterEach
+	void tearDown() {
 
 		licenseRepository.deleteAll();
 		countryRepository.deleteAll();
 	}
 
 	@Test
-	public void testLifeCycle() {
+	void testLifeCycle() {
 
 		License license = new License();
 		license.name = "Schnitzel";
@@ -110,22 +111,22 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #1
-	public void returnsEmptyLastRevisionForUnrevisionedEntity() {
+	void returnsEmptyLastRevisionForUnrevisionedEntity() {
 		assertThat(countryRepository.findLastChangeRevision(100L)).isEmpty();
 	}
 
 	@Test // #47
-	public void returnsEmptyRevisionsForUnrevisionedEntity() {
+	void returnsEmptyRevisionsForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevisions(100L)).isEmpty();
 	}
 
 	@Test // #47
-	public void returnsEmptyRevisionForUnrevisionedEntity() {
+	void returnsEmptyRevisionForUnrevisionedEntity() {
 		assertThat(countryRepository.findRevision(100L, 23)).isEmpty();
 	}
 
 	@Test // #31
-	public void returnsParticularRevisionForAnEntity() {
+	void returnsParticularRevisionForAnEntity() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -153,7 +154,7 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #55
-	public void considersRevisionNumberSortOrder() {
+	void considersRevisionNumberSortOrder() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -174,7 +175,7 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #21
-	public void findsDeletedRevisions() {
+	void findsDeletedRevisions() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -194,7 +195,7 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #47
-	public void includesCorrectRevisionType() {
+	void includesCorrectRevisionType() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -220,7 +221,7 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #146
-	public void shortCircuitingWhenOffsetIsToLarge() {
+	void shortCircuitingWhenOffsetIsToLarge() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -236,7 +237,7 @@ public class RepositoryIntegrationTests {
 	}
 
 	@Test // #47
-	public void paginationWithEmptyResult() {
+	void paginationWithEmptyResult() {
 
 		check(23L, 0, 0, 0);
 	}

@@ -19,9 +19,10 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.Iterator;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.envers.Config;
 import org.springframework.data.envers.sample.Country;
@@ -30,7 +31,7 @@ import org.springframework.data.envers.sample.QCountry;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.Revisions;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Integration tests for repositories with Querydsl support. They make sure that methods provided by both
@@ -39,20 +40,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Dmytro Iaroslavskyi
  * @author Jens Schauder
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
-public class QueryDslRepositoryIntegrationTests {
+class QueryDslRepositoryIntegrationTests {
 
 	@Autowired
 	CountryQueryDslRepository countryRepository;
 
-	@Before
-	public void setUp() {
+	@BeforeEach
+	void setUp() {
 		countryRepository.deleteAll();
 	}
 
 	@Test
-	public void testWithQueryDsl() {
+	void testWithQueryDsl() {
 
 		Country de = new Country();
 		de.code = "de";
@@ -67,7 +68,7 @@ public class QueryDslRepositoryIntegrationTests {
 	}
 
 	@Test
-	public void testWithRevisions() {
+	void testWithRevisions() {
 
 		Country de = new Country();
 		de.code = "de";
