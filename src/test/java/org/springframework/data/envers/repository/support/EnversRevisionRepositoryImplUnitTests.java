@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.RevisionType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.history.AnnotationRevisionMetadata;
 import org.springframework.data.history.RevisionMetadata;
 
@@ -29,10 +29,10 @@ import org.springframework.data.history.RevisionMetadata;
  *
  * @author Jens Schauder
  */
-public class EnversRevisionRepositoryImplUnitTests {
+class EnversRevisionRepositoryImplUnitTests {
 
 	@Test // gh-215
-	public void revisionTypeOfAnnotationRevisionMetadataIsProperlySet() {
+	void revisionTypeOfAnnotationRevisionMetadataIsProperlySet() {
 
 		Object[] data = new Object[] { "a", "some metadata", RevisionType.DEL };
 
@@ -45,7 +45,7 @@ public class EnversRevisionRepositoryImplUnitTests {
 	}
 
 	@Test // gh-215
-	public void revisionTypeOfDefaultRevisionMetadataIsProperlySet() {
+	void revisionTypeOfDefaultRevisionMetadataIsProperlySet() {
 
 		Object[] data = new Object[] { "a", mock(DefaultRevisionEntity.class), RevisionType.DEL };
 

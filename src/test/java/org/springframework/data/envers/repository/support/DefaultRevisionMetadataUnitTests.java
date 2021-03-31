@@ -23,7 +23,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import org.hibernate.envers.DefaultRevisionEntity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link DefaultRevisionMetadata}.
@@ -32,12 +32,12 @@ import org.junit.Test;
  * @author Jens Schauder
  * @author Mark Paluch
  */
-public class DefaultRevisionMetadataUnitTests {
+class DefaultRevisionMetadataUnitTests {
 
 	private static final Instant NOW = Instant.now();;
 
 	@Test // #112
-	public void createsLocalDateTimeFromTimestamp() {
+	void createsLocalDateTimeFromTimestamp() {
 
 		DefaultRevisionEntity entity = new DefaultRevisionEntity();
 		entity.setTimestamp(NOW.toEpochMilli());
