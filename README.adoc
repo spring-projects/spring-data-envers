@@ -3,7 +3,7 @@ image:https://spring.io/badges/spring-data-envers/snapshot.svg[title=Spring Data
 
 = Spring Data Envers image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-envers%2Fmaster&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-envers/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
 
-This project is an extension of the https://github.com/SpringSource/spring-data-jpa[Spring Data JPA] project to allow access to entity revisions managed by Hibernate Envers. The sources mostly originate from a contribution of Philipp Hügelmeyer https://github.com/hygl[@hygl].
+This project is an extension of the https://github.com/SpringSource/spring-data-jpa[Spring Data JPA] project to allow access to entity revisions managed by Hibernate Envers.The sources mostly originate from a contribution of Philipp Hügelmeyer https://github.com/hygl[@hygl].
 
 The core feature of the module consists of an implementation of the `RevisionRepository` of Spring Data Commons.
 
@@ -35,12 +35,12 @@ interface PersonRepository extends RevisionRepository<Person, Long, Integer>, Cr
 }
 ----
 
-To successfully activate the Spring Data Envers repository factory, use the Spring Data JPA's `@EnableJpaRepositories` annotation, specifying the `repositoryFactoryBeanClass` attribute:
+To activate the Spring Data Envers repositories, use the Spring Data Envers' `EnableEnversRepositories` annotation:
 
 [source,java]
 ----
 @Configuration
-@EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class)
+@EnableEnversRepositories
 public class ApplicationConfiguration {
 
 	// Your configuration beans
