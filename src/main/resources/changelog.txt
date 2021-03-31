@@ -1,6 +1,11 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.5.0-RC1 (2021-03-31)
+-----------------------------------------
+* #289 - Investigate `@EnableEnversRepositories` meta-annotation.
+
+
 Changes in version 2.5.0-M5 (2021-03-17)
 ----------------------------------------
 * #283 - Editing pass.
@@ -167,6 +172,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
