@@ -1,7 +1,7 @@
 image:https://spring.io/badges/spring-data-envers/ga.svg[title=Spring Data Envers,link=https://projects.spring.io/spring-data-envers#quick-start]
 image:https://spring.io/badges/spring-data-envers/snapshot.svg[title=Spring Data Envers,link=https://projects.spring.io/spring-data-envers#quick-start]
 
-= Spring Data Envers image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-envers%2Fmaster&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-envers/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
+= Spring Data Envers image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-envers%2Fmain&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-envers/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
 
 This project is an extension of the https://github.com/SpringSource/spring-data-jpa[Spring Data JPA] project to allow access to entity revisions managed by Hibernate Envers.The sources mostly originate from a contribution of Philipp Hügelmeyer https://github.com/hygl[@hygl].
 
