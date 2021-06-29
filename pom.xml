@@ -49,7 +49,7 @@
 
 	<properties>
 		<springdata.jpa>2.3.10.BUILD-SNAPSHOT</springdata.jpa>
-		<hibernate.envers>5.4.8</hibernate.envers>
+		<hibernate.envers>5.4.32</hibernate.envers>
 		<java-module-name>spring.data.envers</java-module-name>
 	</properties>
 
