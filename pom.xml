@@ -49,7 +49,7 @@
 
 	<properties>
 		<springdata.jpa>2.6.0-SNAPSHOT</springdata.jpa>
-		<hibernate.envers>5.4.32</hibernate.envers>
+		<hibernate.envers>5.5.3.Final</hibernate.envers>
 		<java-module-name>spring.data.envers</java-module-name>
 	</properties>
 
@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-envers</artifactId>
-			<version>${hibernate.envers}.Final</version>
+			<version>${hibernate.envers}</version>
 		</dependency>
 
 		<dependency>
