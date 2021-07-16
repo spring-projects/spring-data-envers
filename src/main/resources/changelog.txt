@@ -1,6 +1,12 @@
 Spring Data Envers Changelog
 ==========================
 
+Changes in version 2.6.0-M1 (2021-07-16)
+----------------------------------------
+* #305 - Upgrade to Envers 5.5.3.Final.
+* #288 - Update CI to Java 16.
+
+
 Changes in version 2.4.11 (2021-07-16)
 --------------------------------------
 
@@ -208,6 +214,7 @@ Changes in version 2.3.0.M1 (2020-01-16)
 ----------------------------------------
 * #210 - Upgrade to Envers 5.4.8.
 * #205 - Release 2.3 M1 (Neumann).
+
 
 
 
