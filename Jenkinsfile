@@ -3,7 +3,7 @@ pipeline {
 
 	triggers {
 		pollSCM 'H/10 * * * *'
-		upstream(upstreamProjects: "spring-data-jpa/main", threshold: hudson.model.Result.SUCCESS)
+		upstream(upstreamProjects: "spring-data-jpa/3.0.x", threshold: hudson.model.Result.SUCCESS)
 	}
 
 	options {
@@ -12,7 +12,7 @@ pipeline {
 	}
 
 	stages {
-		stage("test: baseline (jdk8)") {
+		stage("test: baseline (jdk17)") {
 			when {
 				anyOf {
 					branch 'main'
@@ -29,56 +29,8 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
-						}
-					}
-				}
-			}
-		}
-
-		stage("Test other configurations") {
-			when {
-				allOf {
-					branch 'main'
-					not { triggeredBy 'UpstreamCause' }
-				}
-			}
-			parallel {
-				stage("test: baseline (jdk11)") {
-					agent {
-						label 'data'
-					}
-					options { timeout(time: 30, unit: 'MINUTES') }
-					environment {
-						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
-					}
-					steps {
-						script {
-							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image('adoptopenjdk/openjdk11:latest').inside('-v $HOME:/tmp/jenkins-home') {
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
-								}
-							}
-						}
-					}
-				}
-
-				stage("test: baseline (jdk17)") {
-					agent {
-						label 'data'
-					}
-					options { timeout(time: 30, unit: 'MINUTES') }
-					environment {
-						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
-					}
-					steps {
-						script {
-							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
-								}
-							}
 						}
 					}
 				}
@@ -104,7 +56,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pci,artifactory ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
@@ -134,7 +86,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pci,distribute ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
