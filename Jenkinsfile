@@ -3,7 +3,7 @@ pipeline {
 
 	triggers {
 		pollSCM 'H/10 * * * *'
-		upstream(upstreamProjects: "spring-data-jpa/main", threshold: hudson.model.Result.SUCCESS)
+		upstream(upstreamProjects: "spring-data-jpa/2.6.x", threshold: hudson.model.Result.SUCCESS)
 	}
 
 	options {
