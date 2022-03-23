@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Please see the https://spring.io/projects/spring-data-envers[Spring Data Envers] project page for supported versions.
+Please see the https://spring.io/projects/spring-data-jpa[Spring Data JPA] project page for supported versions.
 
 ## Reporting a Vulnerability
 
