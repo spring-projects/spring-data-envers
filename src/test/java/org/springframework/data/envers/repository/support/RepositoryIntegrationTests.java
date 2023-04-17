@@ -18,6 +18,7 @@ package org.springframework.data.envers.repository.support;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +32,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.envers.Config;
 import org.springframework.data.envers.sample.Country;
 import org.springframework.data.envers.sample.CountryRepository;
@@ -243,6 +247,23 @@ class RepositoryIntegrationTests {
 	void paginationWithEmptyResult() {
 
 		check(23L, 0, 0, 0);
+	}
+
+
+	@Test
+	void testSort_pageableByProperty() {
+		Country de = new Country();
+		de.code = "de";
+		de.name = "Deutschland";
+		de.timestamp = Instant.parse("2000-01-01T00:00:00Z");
+		countryRepository.save(de);
+		de.timestamp = Instant.parse("2000-01-04T00:01:00Z");
+		countryRepository.save(de);
+		de.timestamp = Instant.parse("2000-01-04T00:00:00Z");
+		countryRepository.save(de);
+
+		assertThat(countryRepository.findRevisions(de.id, PageRequest.of(0, 3, Sort.by("timestamp"))).map(Revision::getEntity).map(country -> country.timestamp).getContent())
+		.isSortedAccordingTo(Instant::compareTo);
 	}
 
 	void check(Long id, int page, int expectedSize, int expectedTotalSize) {
