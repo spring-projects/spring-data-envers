@@ -15,6 +15,8 @@
  */
 package org.springframework.data.envers.sample;
 
+import java.time.Instant;
+
 import javax.persistence.Entity;
 
 import lombok.ToString;
@@ -32,5 +34,8 @@ import org.hibernate.envers.Audited;
 public class Country extends AbstractEntity {
 
 	public String code;
+	
+	public Instant timestamp;
+
 	public String name;
 }

@@ -36,6 +36,7 @@ import org.hibernate.envers.query.order.AuditOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.history.AnnotationRevisionMetadata;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionMetadata;
@@ -58,6 +59,7 @@ import org.springframework.util.Assert;
  * @author Julien Millau
  * @author Mark Paluch
  * @author Sander Bylemans
+ * @author Niklas Loechte
  */
 @Transactional(readOnly = true)
 public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N>>
@@ -141,18 +143,31 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 		return Revisions.of(revisionList);
 	}
 
+
+	private AuditOrder mapRevisionSort(RevisionSort revisionSort) {
+        return RevisionSort.getRevisionDirection(revisionSort).isDescending() //
+		? AuditEntity.revisionNumber().desc() //
+		: AuditEntity.revisionNumber().asc();
+	}
+
+	private AuditOrder mapPropertySort(Sort sort) {
+		return sort.stream().findFirst().map(order -> order.getDirection().isAscending() ?
+		AuditEntity.property(order.getProperty()).asc() :
+		AuditEntity.property(order.getProperty()).desc())
+		.orElse(AuditEntity.revisionNumber().asc());
+	}
+
 	@SuppressWarnings("unchecked")
 	public Page<Revision<N, T>> findRevisions(ID id, Pageable pageable) {
-
-		AuditOrder sorting = RevisionSort.getRevisionDirection(pageable.getSort()).isDescending() //
-				? AuditEntity.revisionNumber().desc() //
-				: AuditEntity.revisionNumber().asc();
+		AuditOrder orderMapped = (pageable.getSort() instanceof RevisionSort) ? 
+		mapRevisionSort((RevisionSort) pageable.getSort()) :
+        mapPropertySort(pageable.getSort());
 
 		List<Object[]> resultList = createBaseQuery(id) //
-				.addOrder(sorting) //
-				.setFirstResult((int) pageable.getOffset()) //
-				.setMaxResults(pageable.getPageSize()) //
-				.getResultList();
+		.addOrder(orderMapped) //
+		.setFirstResult((int) pageable.getOffset()) //
+		.setMaxResults(pageable.getPageSize()) //
+		.getResultList();
 
 		Long count = (Long) createBaseQuery(id) //
 				.addProjection(AuditEntity.revisionNumber().count()).getSingleResult();
