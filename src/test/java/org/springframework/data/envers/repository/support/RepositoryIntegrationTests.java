@@ -51,6 +51,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  *
  * @author Oliver Gierke
  * @author Jens Schauder
+ * @author Niklas Loechte
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
@@ -63,13 +64,6 @@ class RepositoryIntegrationTests {
 
 	@BeforeEach
 	void setUp() {
-
-		licenseRepository.deleteAll();
-		countryRepository.deleteAll();
-	}
-
-	@AfterEach
-	void tearDown() {
 
 		licenseRepository.deleteAll();
 		countryRepository.deleteAll();
@@ -246,19 +240,22 @@ class RepositoryIntegrationTests {
 	@Test // #47
 	void paginationWithEmptyResult() {
 
-		check(23L, 0, 0, 0);
+		check(-23L, 0, 0, 0);
 	}
 
 
-	@Test
+	@Test // Envers #379
 	void testSort_pageableByProperty() {
+
 		Country de = new Country();
 		de.code = "de";
 		de.name = "Deutschland";
 		de.timestamp = Instant.parse("2000-01-01T00:00:00Z");
 		countryRepository.save(de);
+
 		de.timestamp = Instant.parse("2000-01-04T00:01:00Z");
 		countryRepository.save(de);
+
 		de.timestamp = Instant.parse("2000-01-04T00:00:00Z");
 		countryRepository.save(de);
 

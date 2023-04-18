@@ -15,14 +15,6 @@
  */
 package org.springframework.data.envers.repository.support;
 
-import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.EntityManager;
-
 import org.hibernate.Hibernate;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -32,6 +24,7 @@ import org.hibernate.envers.RevisionTimestamp;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
+import org.hibernate.envers.query.criteria.AuditProperty;
 import org.hibernate.envers.query.order.AuditOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -48,6 +41,14 @@ import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.history.support.RevisionEntityInformation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import javax.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.springframework.data.history.RevisionMetadata.RevisionType.*;
 
 /**
  * Repository implementation using Hibernate Envers to implement revision specific query methods.
@@ -72,12 +73,12 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 	 * Creates a new {@link EnversRevisionRepositoryImpl} using the given {@link JpaEntityInformation},
 	 * {@link RevisionEntityInformation} and {@link EntityManager}.
 	 *
-	 * @param entityInformation must not be {@literal null}.
+	 * @param entityInformation         must not be {@literal null}.
 	 * @param revisionEntityInformation must not be {@literal null}.
-	 * @param entityManager must not be {@literal null}.
+	 * @param entityManager             must not be {@literal null}.
 	 */
 	public EnversRevisionRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
-			RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
+										RevisionEntityInformation revisionEntityInformation, EntityManager entityManager) {
 
 		Assert.notNull(revisionEntityInformation, "RevisionEntityInformation must not be null!");
 
@@ -145,29 +146,47 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 
 
 	private AuditOrder mapRevisionSort(RevisionSort revisionSort) {
-        return RevisionSort.getRevisionDirection(revisionSort).isDescending() //
-		? AuditEntity.revisionNumber().desc() //
-		: AuditEntity.revisionNumber().asc();
+
+		return RevisionSort.getRevisionDirection(revisionSort).isDescending() //
+				? AuditEntity.revisionNumber().desc() //
+				: AuditEntity.revisionNumber().asc();
 	}
 
-	private AuditOrder mapPropertySort(Sort sort) {
-		return sort.stream().findFirst().map(order -> order.getDirection().isAscending() ?
-		AuditEntity.property(order.getProperty()).asc() :
-		AuditEntity.property(order.getProperty()).desc())
-		.orElse(AuditEntity.revisionNumber().asc());
+	private List<AuditOrder> mapPropertySort(Sort sort) {
+
+		if (sort.isEmpty()) {
+			return Collections.singletonList(AuditEntity.revisionNumber().asc());
+		}
+
+		List<AuditOrder> result = new ArrayList<>();
+		for (Sort.Order order : sort) {
+
+			AuditProperty<Object> property = AuditEntity.property(order.getProperty());
+			AuditOrder auditOrder = order.getDirection().isAscending() ?
+					property.asc() :
+					property.desc();
+
+			result.add(auditOrder);
+		}
+
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
 	public Page<Revision<N, T>> findRevisions(ID id, Pageable pageable) {
-		AuditOrder orderMapped = (pageable.getSort() instanceof RevisionSort) ? 
-		mapRevisionSort((RevisionSort) pageable.getSort()) :
-        mapPropertySort(pageable.getSort());
 
-		List<Object[]> resultList = createBaseQuery(id) //
-		.addOrder(orderMapped) //
-		.setFirstResult((int) pageable.getOffset()) //
-		.setMaxResults(pageable.getPageSize()) //
-		.getResultList();
+		AuditQuery baseQuery = createBaseQuery(id);
+
+		List<AuditOrder> orderMapped = (pageable.getSort() instanceof RevisionSort) ?
+				Collections.singletonList(mapRevisionSort((RevisionSort) pageable.getSort())) :
+				mapPropertySort(pageable.getSort());
+
+		orderMapped.forEach(baseQuery::addOrder);
+
+		List<Object[]> resultList = baseQuery //
+				.setFirstResult((int) pageable.getOffset()) //
+				.setMaxResults(pageable.getPageSize()) //
+				.getResultList();
 
 		Long count = (Long) createBaseQuery(id) //
 				.addProjection(AuditEntity.revisionNumber().count()).getSingleResult();
@@ -224,7 +243,7 @@ public class EnversRevisionRepositoryImpl<T, ID, N extends Number & Comparable<N
 			return metadata instanceof DefaultRevisionEntity //
 					? new DefaultRevisionMetadata((DefaultRevisionEntity) metadata, revisionType) //
 					: new AnnotationRevisionMetadata<>(Hibernate.unproxy(metadata), RevisionNumber.class, RevisionTimestamp.class,
-							revisionType);
+					revisionType);
 		}
 
 		private static RevisionMetadata.RevisionType convertRevisionType(RevisionType datum) {

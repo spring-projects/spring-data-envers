@@ -27,6 +27,7 @@ import org.hibernate.envers.Audited;
  *
  * @author Oliver Gierke
  * @author Jens Schauder
+ * @author Niklas Loechte
  */
 @Audited
 @Entity
